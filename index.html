@@ -882,7 +882,7 @@ const GAIT = {
   penguin:{ speed:.35, waddle:true }, duck:{ speed:.35, waddle:true }, rabbit:{ speed:.6, hop:true }, guinea:{ speed:.3 },
   dino:{ speed:.4, stomp:true }, panda:{ speed:.25 }, bear:{ speed:.3 }
 };
-// 招牌動作的名字（答對時畫面上會冒出來）和長度
+// 招牌動作的名字（給程式看的）和長度
 const MOVES = {
   dog:['撿骨頭', 150], cat:['撲撲撲', 140], rabbit:['超級跳', 140], pig:['滾泥巴', 140], chick:['拍翅膀', 120], duck:['玩水', 150],
   guinea:['爆米花跳', 130], bear:['吃蜂蜜', 150], dino:['恐龍大吼', 140], chamel:['變色舌頭', 160], gecko:['舔眼睛', 150], lion:['獅子吼', 140],
@@ -904,11 +904,25 @@ function startScene(cv, color, logicalH = 36){
   const rgb = [1, 3, 5].map(k => parseInt(color.slice(k, k + 2), 16)).join(',');
   const pop = (x, y, c, n = 6, sh = 'dot', spd = 2.4) => { for (let i = 0; i < n; i++) st.parts.push({ x, y, vx:(Math.random() - .5) * spd, vy:-Math.random() * 2 - .6, t:40 + Math.random() * 20, c, sh }); };
   function heart(x, y, c){ fP(g, x, y, c, 2, 2); fP(g, x + 3, y, c, 2, 2); fP(g, x - 1, y + 1, c, 7, 2); fP(g, x, y + 3, c, 5, 1); fP(g, x + 1, y + 4, c, 3, 1); fP(g, x + 2, y + 5, c, 1, 1); }
-  function say(txt, x, y, title){   // 小對話框（招式名稱還掛在上面時先不說話，免得疊在一起）
-    if (!title && st.mode === 'happy' && st.mt < 40) return;
-    g.font = 'bold 8px sans-serif'; const w = Math.ceil(g.measureText(txt).width) + 6;
-    const bx = Math.max(1, Math.min(W - w - 1, Math.round(x - w / 2))), by = Math.max(0, Math.round(y));
-    fP(g, bx, by, INK, w, 11); fP(g, bx + 1, by + 1, '#fff8e0', w - 2, 9); g.fillStyle = INK; g.textBaseline = 'top'; g.fillText(txt, bx + 3, by + 2);
+  // 對話框裡放可愛的像素符號（不用文字，小小的字看不清楚）
+  const GLY = {
+    heart:['#ff5f8a', ['.X.X.', 'XXXXX', 'XXXXX', '.XXX.', '..X..']],
+    note:['#3c8ce0', ['.XXXX', '.X..X', '.X..X', 'XX.XX', 'XX.XX']],
+    star:['#ffb000', ['..X..', '.XXX.', 'XXXXX', '.XXX.', '.X.X.']],
+    bang:['#ff4a4a', ['XX', 'XX', 'XX', '..', 'XX']],
+    spark:['#ffb000', ['..X..', '..X..', 'XX.XX', '..X..', '..X..']],
+    z:['#8a7ae0', ['XXXX', '..X.', '.X..', 'XXXX']],
+    drop:['#3cb0ff', ['..X..', '.XXX.', 'XXXXX', 'XXXXX', '.XXX.']],
+    paw:['#c8763a', ['X.X.X', '.....', '.XXX.', 'XXXXX', '.XXX.']]
+  };
+  function glyph(k, x, y){ const [c, rows] = GLY[k]; rows.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === 'X') fP(g, x + i, y + j, c, 1, 1); }); return rows[0].length; }
+  function say(syms, x, y){   // syms：用空白分開的符號名稱，例如 'note heart'
+    const ks = syms.split(' '), w = ks.reduce((a, k) => a + GLY[k][1][0].length, 0) + (ks.length - 1) * 2 + 6;
+    const bx = Math.max(1, Math.min(W - w - 1, Math.round(x - w / 2))), by = Math.max(0, Math.round(y)) + 2;
+    fP(g, bx + 1, by, INK, w - 2, 9); fP(g, bx, by + 1, INK, w, 7); fP(g, bx + 1, by + 1, '#fffaf0', w - 2, 7);
+    fP(g, Math.round(x) - 1, by + 9, INK, 3, 1); fP(g, Math.round(x), by + 10, INK, 1, 1);
+    let gx = bx + 3;   // 符號輪流上下跳一格
+    ks.forEach((k, n) => { gx += glyph(k, gx, by + 2 - ((st.t >> 3) + n) % 2) + 2; });
   }
   function frame(){
     if (!st.alive || !document.body.contains(cv)) return;
@@ -938,34 +952,34 @@ function startScene(cv, color, logicalH = 36){
         const tb = Math.min(1, k / 40), bx = M.b0 + (M.bx - M.b0) * tb, by = GY - 4 - Math.sin(Math.PI * tb) * 16;
         if (k > 20 && !M.got){ speed = 2.6; h = -Math.abs(Math.sin(k / 3)) * 3; sy = 1 + Math.sin(k) * .04; if (Math.abs(cx() - M.bx) < 4) M.got = true; }
         if (M.got){ h = -Math.abs(Math.sin(k / 6)) * 4; rot = Math.sin(k / 3) * .06; }
-        fx = () => { const X = M.got ? cx() + front * (S2 / 2 - 2) : bx, Y = M.got ? GY - PH * .55 + h : by; fP(g, X - 3, Y, '#f4f0e0', 6, 2); fP(g, X - 4, Y - 1, '#f4f0e0', 2, 4); fP(g, X + 2, Y - 1, '#f4f0e0', 2, 4); if (M.got && f > .6) say('汪！汪！', cx(), GY - PH - 14); };
+        fx = () => { const X = M.got ? cx() + front * (S2 / 2 - 2) : bx, Y = M.got ? GY - PH * .55 + h : by; fP(g, X - 3, Y, '#f4f0e0', 6, 2); fP(g, X - 4, Y - 1, '#f4f0e0', 2, 4); fP(g, X + 2, Y - 1, '#f4f0e0', 2, 4); if (M.got && f > .6) say('note heart', cx(), GY - PH - 14); };
       } else if (id === 'cat'){   // 壓低身子扭屁股，撲出去，再玩毛線球
         if (f < .3){ sy = .82; sx = 1.15; rot = Math.sin(k / 2) * .05; }
         else if (f < .55){ const p = (f - .3) / .25; h = -Math.sin(Math.PI * p) * 11; speed = 2.4; rot = -front * (p - .5) * .6; }
-        else { h = -Math.abs(Math.sin(k / 5)) * 3; if (!st.mem.ball) st.mem.ball = cx() + front * 10; st.mem.ball += front * .5; fx = () => { const bx = st.mem.ball; fP(g, bx - 2, GY - 5, '#e83838', 5, 5); fP(g, bx - 1, GY - 4, '#ff8a8a', 2, 1); fP(g, bx, GY - 1, '#e83838', 6, 1); say('喵～', cx(), GY - PH - 14); }; }
+        else { h = -Math.abs(Math.sin(k / 5)) * 3; if (!st.mem.ball) st.mem.ball = cx() + front * 10; st.mem.ball += front * .5; fx = () => { const bx = st.mem.ball; fP(g, bx - 2, GY - 5, '#e83838', 5, 5); fP(g, bx - 1, GY - 4, '#ff8a8a', 2, 1); fP(g, bx, GY - 1, '#e83838', 6, 1); say('heart', cx(), GY - PH - 14); }; }
       } else if (id === 'rabbit'){   // 連跳三下，最後一下在空中扭身（兔子的開心跳）
         const p = (f * 3) % 1, n = Math.floor(f * 3); h = -Math.sin(Math.PI * p) * (n === 2 ? 11 : 7); speed = 1.6; if (n === 2) rot = Math.sin(Math.PI * p * 2) * .5;
         if (k % 46 === 1) pop(cx(), GY - 2, '#ff9a20', 3); if (n === 2 && p > .4 && p < .45) pop(cx(), GY - PH, '#ffcf3f', 6);
       } else if (id === 'pig'){   // 滾泥巴
         rot = f * Math.PI * 4 * front; h = -Math.abs(Math.sin(k / 5)) * 2; speed = .4;
         if (k % 10 === 0) pop(cx(), GY - 2, '#7a4a24', 3);
-        fx = () => { fP(g, Math.round(st.x - 4), GY - 1, '#7a4a24', S2 + 8, 2); if (f > .7) { st.parts.length < 40 && k % 20 === 0 && st.parts.push({ x:cx(), y:GY - PH, vx:0, vy:-.6, t:40, c:'#ff8ab0', sh:'heart' }); say('嚕嚕～', cx(), GY - PH - 14); } };
+        fx = () => { fP(g, Math.round(st.x - 4), GY - 1, '#7a4a24', S2 + 8, 2); if (f > .7) { st.parts.length < 40 && k % 20 === 0 && st.parts.push({ x:cx(), y:GY - PH, vx:0, vy:-.6, t:40, c:'#ff8ab0', sh:'heart' }); say('heart note', cx(), GY - PH - 14); } };
       } else if (id === 'chick'){   // 拼命拍翅膀、跳起來，掉羽毛
         sx = 1 + Math.sin(k * 1.2) * .18; h = -Math.abs(Math.sin(k / 6)) * 6; if (k % 8 === 0) pop(cx(), GY - PH / 2 + h, '#ffe070', 1, 'dot', 3);
-        if (f > .5) fx = () => say('啾啾！', cx(), GY - PH - 14 + h);
+        if (f > .5) fx = () => say('note note', cx(), GY - PH - 14 + h);
       } else if (id === 'duck'){   // 變出一個小水池，潛水、甩水花
         const dip = f > .3 && f < .75 ? Math.max(0, Math.sin((f - .3) / .45 * Math.PI * 3)) : 0;
         h = dip * 6; rot = dip * .5 * front; if (k % 14 === 0) pop(cx(), GY - 3, '#8cd0ff', 4, 'drop');
-        fx = () => { fP(g, Math.round(st.x - 8), GY - 2, '#3c8ce0', S2 + 16, 4); fP(g, Math.round(st.x - 6), GY - 2, '#8cd0ff', 6, 1); if (f > .75) say('呱呱！', cx(), GY - PH - 14); };
+        fx = () => { fP(g, Math.round(st.x - 8), GY - 2, '#3c8ce0', S2 + 16, 4); fP(g, Math.round(st.x - 6), GY - 2, '#8cd0ff', 6, 1); if (f > .75) say('drop note', cx(), GY - PH - 14); };
       } else if (id === 'guinea'){   // 天竺鼠開心時會突然原地彈跳（爆米花跳）
         const p = (k % 22) / 22; h = -Math.max(0, Math.sin(Math.PI * p * 2)) * (6 + (k / 22 % 3) * 2); rot = p < .5 ? (Math.floor(k / 22) % 2 ? .3 : -.3) * Math.sin(Math.PI * p * 2) : 0;
         if (k % 22 === 5) pop(cx(), GY - PH, '#fff8e0', 4);
       } else if (id === 'bear'){   // 站起來抱著蜂蜜罐吃，滴蜂蜜
         rot = -front * .35 * Math.min(1, k / 20); h = -2; sy = 1.05;
-        fx = () => { const X = Math.round(cx() + front * (S2 / 2 + 2)), Y = GY - 10; fP(g, X - 4, Y, INK, 9, 9); fP(g, X - 3, Y + 1, '#ffb000', 7, 7); fP(g, X - 3, Y + 1, '#ffd23c', 7, 2); fP(g, X - 2, Y - 2, '#c87a28', 5, 2); if (k % 30 < 15) fP(g, X - 1, Y + 9 + (k % 15) / 3, '#ffb000', 1, 2); if (f > .5) say('好甜～', cx(), GY - PH - 16); };
+        fx = () => { const X = Math.round(cx() + front * (S2 / 2 + 2)), Y = GY - 10; fP(g, X - 4, Y, INK, 9, 9); fP(g, X - 3, Y + 1, '#ffb000', 7, 7); fP(g, X - 3, Y + 1, '#ffd23c', 7, 2); fP(g, X - 2, Y - 2, '#c87a28', 5, 2); if (k % 30 < 15) fP(g, X - 1, Y + 9 + (k % 15) / 3, '#ffb000', 1, 2); if (f > .5) say('heart heart', cx(), GY - PH - 16); };
       } else if (id === 'dino'){   // 跺腳三下，大吼，畫面震動
         if (f < .5){ const p = (f * 6) % 1; h = -Math.sin(Math.PI * p) * 4; if (p < .05) { shake = 2; pop(cx(), GY - 1, '#a9a6d6', 4); } }
-        else { sx = 1 + Math.sin(k / 2) * .08; shake = 1; fx = () => { say('吼～～！', cx(), GY - PH - 15); for (let r = 0; r < 3; r++){ const rr = ((k * 1.5 + r * 10) % 30); g.strokeStyle = `rgba(255,207,63,${1 - rr / 30})`; g.lineWidth = 1; g.beginPath(); g.arc(cx() + front * 10, GY - PH / 2, rr, -.6, .6); g.stroke(); } }; }
+        else { sx = 1 + Math.sin(k / 2) * .08; shake = 1; fx = () => { say('bang bang', cx(), GY - PH - 15); for (let r = 0; r < 3; r++){ const rr = ((k * 1.5 + r * 10) % 30); g.strokeStyle = `rgba(255,207,63,${1 - rr / 30})`; g.lineWidth = 1; g.beginPath(); g.arc(cx() + front * 10, GY - PH / 2, rr, -.6, .6); g.stroke(); } }; }
       } else if (id === 'chamel'){   // 一直變顏色，伸出長舌頭抓蟲
         const cols = ['#ff5a5a', '#ffb000', '#ffe040', '#3cc04c', '#3c8ce0', '#a86ae8'];
         img = tinted(PI0, cols[Math.floor(k / 12) % cols.length]);
@@ -974,41 +988,41 @@ function startScene(cv, color, logicalH = 36){
         fx = () => {
           if (f < .6) { fP(g, Math.round(fly.x), Math.round(fly.y), INK, 2, 2); fP(g, Math.round(fly.x) - 1, Math.round(fly.y) - 1 - (k % 4 < 2 ? 1 : 0), '#d8f0ff', 2, 1); }
           if (tg > 0){ const mx = cx() - front * -(S2 / 2 - 2), my = GY - PH * .55, ex = mx + (fly.x - mx) * tg, ey = my + (fly.y - my) * tg; g.strokeStyle = '#ff6a9a'; g.lineWidth = 2; g.beginPath(); g.moveTo(mx, my); g.lineTo(ex, ey); g.stroke(); fP(g, Math.round(ex) - 1, Math.round(ey) - 1, '#ff3a7a', 3, 3); }
-          if (f > .7) say('抓到了！', cx(), GY - PH - 14);
+          if (f > .7) say('star bang', cx(), GY - PH - 14);
         };
       } else if (id === 'gecko'){   // 飛快地爬一段，停下來用舌頭舔眼睛
-        if (f < .45){ speed = 3; sy = .9; } else { const lick = Math.floor((f - .45) * 12) % 2; fx = () => { const ex = cx() - front * -(S2 / 2 - 4), ey = GY - PH * .62; if (lick) { fP(g, Math.round(ex) - 1, Math.round(ey) - 2, '#ff6a9a', 3, 3); } if (k % 12 === 0) pop(ex, ey - 4, '#ffffff', 1); say('舔～', cx(), GY - PH - 14); }; rot = Math.sin(k / 3) * .04; }
+        if (f < .45){ speed = 3; sy = .9; } else { const lick = Math.floor((f - .45) * 12) % 2; fx = () => { const ex = cx() - front * -(S2 / 2 - 4), ey = GY - PH * .62; if (lick) { fP(g, Math.round(ex) - 1, Math.round(ey) - 2, '#ff6a9a', 3, 3); } if (k % 12 === 0) pop(ex, ey - 4, '#ffffff', 1); say('spark', cx(), GY - PH - 14); }; rot = Math.sin(k / 3) * .04; }
       } else if (id === 'lion'){   // 鬃毛膨起來，大吼，聲波一圈圈
         const pump = Math.abs(Math.sin(k / 6)); sx = sy = 1 + pump * .15; shake = f > .3 && f < .8 ? 1 : 0; h = -pump * 2;
-        fx = () => { for (let r = 0; r < 3; r++){ const rr = (k * 1.2 + r * 12) % 36; g.strokeStyle = `rgba(255,140,40,${1 - rr / 36})`; g.lineWidth = 2; g.beginPath(); g.arc(cx() + front * 8, GY - PH / 2, rr, front > 0 ? -.7 : Math.PI - .7, front > 0 ? .7 : Math.PI + .7); g.stroke(); } say('吼喔～～！', cx(), GY - PH - 16); };
+        fx = () => { for (let r = 0; r < 3; r++){ const rr = (k * 1.2 + r * 12) % 36; g.strokeStyle = `rgba(255,140,40,${1 - rr / 36})`; g.lineWidth = 2; g.beginPath(); g.arc(cx() + front * 8, GY - PH / 2, rr, front > 0 ? -.7 : Math.PI - .7, front > 0 ? .7 : Math.PI + .7); g.stroke(); } say('bang bang bang', cx(), GY - PH - 16); };
       } else if (id === 'panda'){   // 往前翻跟斗，最後坐下來啃竹子
         if (f < .6){ rot = (f / .6) * Math.PI * 4 * front; speed = 1.4; h = -Math.abs(Math.sin(k / 6)) * 3; if (k % 12 === 0) pop(cx(), GY - 4, '#3cc04c', 2); }
-        else fx = () => { const X = Math.round(cx() + front * (S2 / 2 - 2)), Y = GY - PH + 2; fP(g, X - 1, Y, '#3c9c28', 2, 12); fP(g, X - 1, Y + 4, '#2a7a1a', 2, 1); fP(g, X + 1, Y + 1, '#5cc83c', 3, 2); if (k % 16 < 8) pop(X, Y + 2, '#5cc83c', 1, 'dot', 1); say('喀滋喀滋', cx(), GY - PH - 15); };
+        else fx = () => { const X = Math.round(cx() + front * (S2 / 2 - 2)), Y = GY - PH + 2; fP(g, X - 1, Y, '#3c9c28', 2, 12); fP(g, X - 1, Y + 4, '#2a7a1a', 2, 1); fP(g, X + 1, Y + 1, '#5cc83c', 3, 2); if (k % 16 < 8) pop(X, Y + 2, '#5cc83c', 1, 'dot', 1); say('note heart', cx(), GY - PH - 15); };
       } else if (id === 'tiger'){   // 蹲低後高速衝刺，後面拉出速度線
         if (f < .25){ sy = .85; sx = 1.1; rot = -front * .05; }
         else if (f < .75){ speed = 4; rot = front * .12; fx = () => { for (let i = 0; i < 4; i++) fP(g, Math.round(cx() - front * (S2 / 2 + 6 + i * 6)), GY - 4 - i * 4, 'rgba(255,255,255,.7)', 8 - i, 1); }; }
-        else fx = () => say('嗷嗚！', cx(), GY - PH - 14);
+        else fx = () => say('bang star', cx(), GY - PH - 14);
       } else if (id === 'koala'){   // 冒出一棵樹，抱著樹往上爬，打瞌睡
         if (k === 1) M.tx = Math.round(cx() + front * 14);
         const climb = f < .4 ? f / .4 : f < .8 ? 1 : 1 - (f - .8) / .2;
         h = -climb * 10; rot = climb === 1 ? Math.sin(k / 20) * .05 : 0;
         bg = () => { fP(g, M.tx - 3, GY - 30, '#6a4220', 6, 30); fP(g, M.tx - 2, GY - 30, '#8a5a2c', 2, 30); fP(g, M.tx - 10, GY - 34, '#3c9c28', 20, 6); fP(g, M.tx - 6, GY - 37, '#5cc83c', 12, 4); };
-        fx = () => { if (climb === 1 && k % 30 === 0) pop(M.tx, GY - 32, '#5cc83c', 1, 'dot', 1); if (climb === 1) say('ZZZ', M.tx + front * 14, 4); };
+        fx = () => { if (climb === 1 && k % 30 === 0) pop(M.tx, GY - 32, '#5cc83c', 1, 'dot', 1); if (climb === 1) say('z z', M.tx + front * 14, 4); };
         st.x += (M.tx - front * 3 - cx()) * .1;
       } else if (id === 'penguin'){   // 趴下用肚子滑冰，冒出雪花
         const lay = f < .1 ? f / .1 : f > .9 ? (1 - f) / .1 : 1;
         rot = front * lay * 1.3; speed = lay > .9 ? 3.2 : 0; h = lay * 3;
         if (k % 4 === 0 && speed) pop(cx() - front * 8, GY - 2, '#ffffff', 2, 'dot', 1.2);
-        if (f > .9) fx = () => say('咻～', cx(), GY - PH - 14);
+        if (f > .9) fx = () => say('spark star', cx(), GY - PH - 14);
       } else if (id === 'fox'){   // 高高跳起，頭朝下鑽進雪裡，再探出頭
         if (f < .5){ const p = f / .5; h = -Math.sin(Math.PI * p) * 12; speed = 1.2; rot = front * p * 1.5; }
         else if (f < .75){ h = 6; rot = front * 1.5; sy = .8; if (k % 6 === 0) pop(cx(), GY - 3, '#ffffff', 4); }
-        else { fx = () => say('抓到老鼠！', cx(), GY - PH - 14); h = -Math.abs(Math.sin(k / 6)) * 2; }
+        else { fx = () => say('star heart', cx(), GY - PH - 14); h = -Math.abs(Math.sin(k / 6)) * 2; }
         fx = fx || (() => { if (f > .48 && f < .8){ fP(g, Math.round(st.x - 2), GY - 4, '#f4f4f8', S2 + 4, 4); } });
       } else if (id === 'sloth'){   // 超級慢動作：慢慢舉手、慢慢跳一下，冒出 ZZZ
         rot = Math.sin(f * Math.PI) * -.4 * front; h = -Math.sin(f * Math.PI) * 4; speed = .05;
         if (k % 40 === 0) pop(cx(), GY - PH - 2, '#a9a6d6', 1, 'z');
-        fx = () => say(f < .5 ? '好～開～心～' : '嘿～～', cx(), GY - PH - 15 + h);
+        fx = () => say(f < .5 ? 'heart' : 'heart z', cx(), GY - PH - 15 + h);
       } else {   // 其他：開心地跑來跑去
         speed = 2.4; h = -Math.abs(Math.sin(k / 3)) * 4;
       }
@@ -1035,12 +1049,11 @@ function startScene(cv, color, logicalH = 36){
     g.save(); g.translate(Math.round(cx()), Math.round(GY - PH / 2 + h)); g.rotate(rot); g.scale(sx * (st.dir > 0 ? -1 : 1), sy);
     g.drawImage(img, -S2 / 2, -PH / 2, S2, PH); g.restore();
     if (fx) fx();
-    if (st.mode === 'happy' && st.mt < 40) say(`✨ ${MOVES[id] ? MOVES[id][0] : '開心'}`, W / 2, 1, true);
     st.parts = st.parts.filter(p => {
       p.x += p.vx; p.y += p.vy; if (p.sh === 'dot') p.vy += .08; if (p.sh === 'z'){ p.vy = -.25; p.vx = .15; } p.t--;
       if (p.sh === 'heart') heart(Math.round(p.x), Math.round(p.y), p.c);
       else if (p.sh === 'drop'){ fP(g, Math.round(p.x), Math.round(p.y), p.c, 2, 3); fP(g, Math.round(p.x), Math.round(p.y) - 1, p.c, 1, 1); }
-      else if (p.sh === 'z'){ g.fillStyle = p.c; g.font = 'bold 7px sans-serif'; g.textBaseline = 'top'; g.fillText('z', Math.round(p.x), Math.round(p.y)); }
+      else if (p.sh === 'z') glyph('z', Math.round(p.x), Math.round(p.y));
       else fP(g, Math.round(p.x), Math.round(p.y), p.c, 2, 2);
       return p.t > 0;
     });
