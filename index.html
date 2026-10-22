@@ -141,7 +141,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .pets{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .pets .lab{font-weight:900;color:var(--gold);margin-right:4px}
 .pet{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--panel);border:3px solid var(--line);box-shadow:0 3px 0 var(--line);padding:4px 6px;font-size:12px;font-weight:700;min-width:52px}
-.pet canvas{width:32px;height:32px;image-rendering:pixelated}
+.pet canvas{width:36px;height:30px;image-rendering:pixelated}
 .pet.on{background:var(--gold);color:var(--line)}
 .pet:active{transform:translateY(3px);box-shadow:none}
 .confetti{position:fixed;inset:0;z-index:40;pointer-events:none}
@@ -153,7 +153,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .lbwin .nm{display:flex;flex-direction:column;gap:6px;padding:0 18px;font-weight:900}
 .lbwin input{font:inherit;font-size:20px;font-weight:700;padding:8px 10px;border:3px solid var(--line);background:var(--text);color:var(--line)}
 .lbwin .me2{display:flex;align-items:center;gap:10px;padding:0 18px;color:var(--dim);font-size:14px}
-.lbwin .me2 canvas,.lblist canvas{width:32px;height:32px;image-rendering:pixelated;flex:none}
+.lbwin .me2 canvas,.lblist canvas{width:36px;height:30px;image-rendering:pixelated;flex:none}
 .lbwin .err{margin:0 18px;color:var(--red);font-weight:700}
 .lbwin .row,.lbbox .row{padding:0 14px}
 .lbbox .x{background:none;border:0;font-size:18px;font-weight:900;color:var(--line)}
@@ -694,7 +694,95 @@ const SEC = Object.fromEntries(SECS.map(s => [s.id, s]));
 BANK.forEach((q, i) => { q.id = 'q' + i; q.sec = SEC[q.s]; q.ti = q.sec.t; q.topic = TOPICS[q.ti]; });
 TOPICS.forEach((tp, i) => { tp.secs = SECS.filter(s => s.t === i); tp.qs = BANK.filter(q => q.ti === i); });
 const MISSION_LEN = 20, CARD_NEED = 3;   // 每次 20 題；同一個觀念答對 3 題就收集到那張知識卡
-const PETS = [['🐕', '小狗'], ['🐈', '小貓'], ['🐇', '兔子'], ['🐿️', '松鼠'], ['🐧', '企鵝'], ['🦔', '刺蝟'], ['🐢', '烏龜'], ['🦆', '鴨子']];
+// 小夥伴：跟一年級數學「123冒險島」一樣的手繪像素小動物（18×15，臉朝左）
+const PETS = [['dog', '狗狗'], ['cat', '貓咪'], ['rabbit', '兔子'], ['pig', '小豬'], ['chick', '小雞'], ['duck', '鴨子'], ['guinea', '天竺鼠'], ['bear', '熊熊'], ['dino', '恐龍']];
+const PET_IDS = PETS.map(p => p[0]);
+const ANIMAL_CACHE = {};
+function animalCanvas(id){
+  if (ANIMAL_CACHE[id]) return ANIMAL_CACHE[id];
+  const W2 = 18, H2 = 15, c = document.createElement('canvas'); c.width = W2; c.height = H2;
+  const g = c.getContext('2d');
+  const R = (x, y, w, h, col) => { g.fillStyle = col; g.fillRect(x + 1, y + 1, w, h); };
+  const ink = '#1b1b2f', pink = '#ff7a8a';
+  if (id === 'cat'){
+    const o = '#f0a040', oS = '#c87a28', w = '#fff4e0';
+    R(14, 1, 1, 6, o); R(15, 0, 1, 2, o);
+    R(6, 6, 8, 4, o); R(8, 6, 1, 3, oS); R(11, 6, 1, 3, oS); R(6, 9, 8, 1, oS);
+    R(6, 10, 2, 2, o); R(12, 10, 2, 2, oS); R(6, 11, 2, 1, w); R(12, 11, 2, 1, w);
+    R(1, 2, 7, 5, o); R(1, 0, 2, 2, o); R(6, 0, 2, 2, o); R(2, 1, 1, 1, pink); R(6, 1, 1, 1, pink);
+    R(3, 2, 1, 1, oS); R(5, 2, 1, 1, oS);
+    R(2, 5, 4, 2, w); R(3, 5, 2, 1, pink); R(2, 3, 1, 1, ink); R(5, 3, 1, 1, ink);
+    R(4, 8, 3, 2, w);
+  } else if (id === 'rabbit'){
+    const w = '#f4f4f8', wS = '#c8c8d8';
+    R(2, 0, 2, 4, w); R(5, 0, 2, 4, w); R(3, 1, 1, 2, '#ffb0c0'); R(6, 1, 1, 2, '#ffb0c0');
+    R(1, 4, 7, 5, w); R(2, 6, 1, 1, ink); R(5, 6, 1, 1, ink); R(3, 7, 2, 1, pink);
+    R(6, 7, 7, 4, w); R(6, 10, 7, 1, wS); R(13, 7, 2, 2, w);
+    R(6, 11, 2, 1, wS); R(11, 11, 2, 1, wS);
+  } else if (id === 'pig'){
+    const pk = '#ffb0c8', pS = '#e888a8';
+    R(15, 5, 1, 2, pS); R(14, 4, 1, 1, pS);
+    R(6, 5, 9, 5, pk); R(6, 9, 9, 1, pS);
+    R(6, 10, 2, 2, pk); R(12, 10, 2, 2, pS);
+    R(1, 3, 6, 6, pk); R(1, 2, 2, 1, pS); R(5, 2, 2, 1, pS);
+    R(0, 5, 3, 3, '#ff8aa8'); R(0, 6, 1, 1, ink); R(2, 6, 1, 1, ink);
+    R(2, 4, 1, 1, ink); R(5, 4, 1, 1, ink);
+  } else if (id === 'chick'){
+    const y = '#ffd23c', yS = '#e8a820', or = '#ff8c1a';
+    R(8, 1, 1, 2, y); R(9, 2, 1, 1, y);
+    R(5, 3, 7, 8, y); R(4, 4, 9, 6, y); R(4, 9, 9, 1, yS);
+    R(9, 6, 3, 2, yS); R(6, 5, 1, 1, ink); R(2, 6, 2, 1, or);
+    R(7, 11, 1, 2, or); R(10, 11, 1, 2, or); R(6, 12, 2, 1, or); R(9, 12, 2, 1, or);
+  } else if (id === 'dino'){   // 小恐龍：綠色、背上黃色尖刺
+    const gr = '#4cb04c', gS = '#2c8c3c';
+    R(12, 6, 4, 2, gr); R(15, 5, 2, 1, gr);
+    R(5, 5, 7, 5, gr); R(6, 7, 4, 3, '#c8ec8c');
+    R(6, 10, 2, 3, gS); R(10, 10, 2, 3, gS);
+    R(1, 1, 6, 4, gr); R(1, 4, 5, 2, gr); R(3, 2, 1, 1, ink); R(2, 5, 1, 1, '#ffffff'); R(4, 5, 1, 1, '#ffffff');
+    R(5, 7, 1, 1, gS);
+    R(7, 4, 1, 1, '#ffd23c'); R(9, 4, 1, 1, '#ffd23c'); R(11, 5, 1, 1, '#ffd23c');
+  } else if (id === 'duck'){   // 鴨子：白色、橘色嘴巴和腳
+    const w = '#ffffff', wS = '#d0d0e0', or = '#ff9a20';
+    R(5, 6, 9, 5, w); R(4, 7, 11, 3, w); R(14, 5, 2, 2, w); R(5, 10, 9, 1, wS); R(8, 7, 5, 2, wS);
+    R(2, 1, 5, 5, w); R(4, 5, 3, 2, w); R(0, 3, 3, 2, or); R(3, 2, 1, 1, ink);
+    R(7, 11, 2, 2, or); R(11, 11, 2, 2, or);
+  } else if (id === 'guinea'){   // 天竺鼠：咖啡色加白色，圓滾滾
+    const b = '#c8864a', bS = '#9a6030', cr = '#fff0d8';
+    R(5, 4, 10, 1, b); R(4, 5, 12, 6, b); R(5, 11, 10, 1, bS); R(9, 5, 4, 6, cr);
+    R(1, 4, 6, 6, b); R(3, 3, 2, 1, '#e8a0a0'); R(2, 6, 1, 1, ink); R(0, 7, 1, 1, pink); R(1, 8, 3, 1, cr);
+    R(4, 12, 2, 1, bS); R(13, 12, 2, 1, bS);
+  } else if (id === 'bear'){   // 熊熊：咖啡色、圓耳朵、淺色鼻子
+    const br = '#a8683a', bS = '#7a4a24', mz = '#e8c090';
+    R(1, 0, 3, 3, br); R(6, 0, 3, 3, br); R(2, 1, 1, 1, bS); R(7, 1, 1, 1, bS);
+    R(1, 2, 8, 7, br); R(1, 5, 4, 3, mz); R(1, 5, 2, 1, ink); R(3, 4, 1, 1, ink); R(6, 4, 1, 1, ink);
+    R(8, 5, 8, 6, br); R(8, 10, 8, 1, bS); R(10, 7, 4, 3, mz);
+    R(8, 11, 3, 2, br); R(13, 11, 3, 2, bS);
+  } else {   // 狗狗：紅項圈
+    const tan = '#e0a050', tanS = '#b87a34', wht = '#fff4e0', dark = '#7a4a22';
+    R(14, 4, 1, 3, tan); R(15, 3, 1, 2, tan);
+    R(6, 6, 8, 4, tan); R(6, 9, 8, 1, tanS);
+    R(6, 10, 2, 2, tan); R(12, 10, 2, 2, tanS); R(6, 11, 2, 1, wht); R(12, 11, 2, 1, wht);
+    R(2, 1, 5, 1, tan); R(1, 2, 7, 5, tan);
+    R(1, 0, 2, 2, dark); R(6, 0, 2, 2, dark);
+    R(2, 4, 4, 2, wht); R(3, 4, 2, 1, ink); R(4, 6, 1, 1, pink);
+    R(2, 3, 1, 1, ink); R(5, 3, 1, 1, ink);
+    R(4, 8, 3, 2, wht); R(3, 7, 4, 1, '#d83030'); R(4, 8, 1, 1, '#ffd23c');
+  }
+  const d = g.getImageData(0, 0, W2, H2), a = d.data, op = i => a[i * 4 + 3] > 0, out = [];
+  for (let y = 0; y < H2; y++) for (let x = 0; x < W2; x++){
+    const i = y * W2 + x; if (op(i)) continue;
+    if ((x > 0 && op(i - 1)) || (x < W2 - 1 && op(i + 1)) || (y > 0 && op(i - W2)) || (y < H2 - 1 && op(i + W2))) out.push(i);
+  }
+  out.forEach(i => { a[i * 4] = 0x1b; a[i * 4 + 1] = 0x1b; a[i * 4 + 2] = 0x2f; a[i * 4 + 3] = 255; });
+  g.putImageData(d, 0, 0);
+  return (ANIMAL_CACHE[id] = c);
+}
+
+// 排行榜上別人的小夥伴可能是舊版的 emoji，就用 emoji 像素圖顯示
+const petImg = p => PET_IDS.includes(p) ? animalCanvas(p) : sprite(p || '🐕', 20);
+function paintPets(root){
+  root.querySelectorAll('[data-pc]').forEach(c => { const img = petImg(c.dataset.pc); c.width = img.width; c.height = img.height; const g = c.getContext('2d'); g.imageSmoothingEnabled = false; g.drawImage(img, 0, 0); });
+}
 const TITLES = [[1, '見習探險家'], [4, '小小公民'], [7, '社會偵探'], [11, '臺灣通'], [16, '時光大師']];
 const lvOf = xp => Math.floor(Math.sqrt(xp / 150)) + 1;
 const xpFor = lv => (lv - 1) * (lv - 1) * 150;
@@ -702,9 +790,10 @@ const titleOf = lv => TITLES.filter(([n]) => lv >= n).pop()[1];
 
 // ---------- 存檔（只存在這台裝置） ----------
 const KEY = 'g6-social-quest-v3';
-let S = { xp:0, topics:{}, secOk:{}, seen:{}, pet:'🐕' };
+let S = { xp:0, topics:{}, secOk:{}, seen:{}, pet:'dog' };
 try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e){}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e){} };
+if (!PET_IDS.includes(S.pet)){ S.pet = { '🐕':'dog', '🐈':'cat', '🐇':'rabbit', '🦆':'duck', '🐿️':'guinea', '🦔':'guinea' }[S.pet] || 'dog'; save(); }
 const cardGot = sec => (S.secOk[sec.id] || 0) >= CARD_NEED;
 const cardCount = tp => tp.secs.filter(cardGot).length;
 
@@ -734,7 +823,7 @@ function startScene(cv, color, logicalH = 36){
     fP(g, 0, GY, '#2a3370', W, H - GY); fP(g, 0, GY, color, W, 1);
     for (let x = 0; x < W; x += 12) fP(g, x + 3, GY + 4, '#343e86', 5, 1);
     // 行為
-    const S2 = 24;   // 小夥伴畫多大
+    const PI = petImg(S.pet), S2 = Math.round(PI.width * 1.5), PH = Math.round(PI.height * 1.5);   // 小夥伴放大 1.5 倍
     let h = 0, rot = 0, sx = 1, sy = 1, speed = 0;
     if (st.mode === 'walk'){
       if (st.pause > 0){ st.pause--; h = Math.floor(st.t / 30) % 2 ? -1 : 0; }
@@ -757,8 +846,8 @@ function startScene(cv, color, logicalH = 36){
     if (st.x < 4){ st.x = 4; st.dir = 1; } if (st.x > W - S2 - 4){ st.x = W - S2 - 4; st.dir = -1; }
     // 影子和小夥伴（emoji 動物大多面向左，往右走時翻過來）
     fP(g, Math.round(st.x + 6), GY - 1, 'rgba(0,0,0,.4)', S2 - 12, 2);
-    g.save(); g.translate(Math.round(st.x + S2 / 2), Math.round(GY - S2 / 2 + h)); g.rotate(rot); g.scale(sx * (st.dir > 0 ? -1 : 1), sy);
-    g.drawImage(sprite(S.pet, 24), 0, 0, 24, 24, -S2 / 2, -S2 / 2, S2, S2); g.restore();
+    g.save(); g.translate(Math.round(st.x + S2 / 2), Math.round(GY - PH / 2 + h)); g.rotate(rot); g.scale(sx * (st.dir > 0 ? -1 : 1), sy);
+    g.drawImage(PI, -S2 / 2, -PH / 2, S2, PH); g.restore();
     // 粒子
     st.parts = st.parts.filter(p => {
       p.x += p.vx; p.y += p.vy; if (p.sh === 'dot') p.vy += .08; p.t--;
@@ -782,7 +871,7 @@ function home(){
   $('view').innerHTML = `<div class="wrap" style="gap:14px">
     <section class="hero"><canvas id="heroCv" width="480" height="64" aria-hidden="true"></canvas>
       <div class="txt"><h2>社會任務</h2><p>臺灣的民主、權利、政府、社會與文化｜題庫 ${BANK.length} 題</p></div></section>
-    <div class="pets" role="radiogroup" aria-label="選擇你的小夥伴"><span class="lab">我的小夥伴</span>${PETS.map(([e, n]) => `<button class="pet ${S.pet === e ? 'on' : ''}" data-pet="${e}" role="radio" aria-checked="${S.pet === e}" title="${n}"><canvas data-ic="${e}" width="20" height="20"></canvas><span>${n}</span></button>`).join('')}</div>
+    <div class="pets" role="radiogroup" aria-label="選擇你的小夥伴"><span class="lab">我的小夥伴</span>${PETS.map(([e, n]) => `<button class="pet ${S.pet === e ? 'on' : ''}" data-pet="${e}" role="radio" aria-checked="${S.pet === e}" title="${n}"><canvas data-pc="${e}"></canvas><span>${n}</span></button>`).join('')}</div>
     <button class="mixbtn" data-mix>🎲 綜合挑戰：六大主題平均出題，共 ${MISSION_LEN} 題</button>
     <div class="units">${TOPICS.map((tp, i) => { const st = S.topics[i] || {}; return `
       <button class="unit" data-unit="${i}" style="--c:${tp.c}">
@@ -794,6 +883,7 @@ function home(){
     <p class="tipline">每次 ${MISSION_LEN} 題，平均出自主題裡的每個觀念｜答錯會附上詳解｜卡關就按 💡 看提示動畫｜同一個觀念答對 ${CARD_NEED} 題就收集到知識卡</p>
   </div>`;
   $('view').querySelectorAll('[data-ic]').forEach(c => c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0));
+  paintPets($('view'));
   SCENE = startScene($('heroCv'), '#3ce0ff', 40);
   renderMe();
 }
@@ -971,7 +1061,7 @@ function hintLoop(){
     g.drawImage(sprite(tk, 24), 0, 0, 24, 24, Math.round(cx - sz / 2), Math.round(cy - sz / 2), sz, sz);
   });
   // 小夥伴在角落點頭
-  g.drawImage(sprite(S.pet, 24), 0, 0, 24, 24, 6, Hh - 52 + Math.round(Math.abs(Math.sin(H.t / 8)) * -4), 30, 30);
+  const PI = petImg(S.pet); g.drawImage(PI, 6, Hh - 26 - PI.height * 2 + Math.round(Math.abs(Math.sin(H.t / 8)) * -4), PI.width * 2, PI.height * 2);
   const shown = Math.min(cap.length, Math.max(0, Math.floor((H.t - 10) / 2)));
   const capEl = $('hcap'); if (capEl && capEl.dataset.n !== shown + '-' + H.k){ capEl.dataset.n = shown + '-' + H.k; capEl.textContent = cap.slice(0, shown) + (shown < cap.length ? '▌' : ''); if (shown && shown % 3 === 0 && shown < cap.length) beep(600 + (shown % 5) * 40, .02, 'square', .02); }
   $('hpg').textContent = `${H.k + 1} / ${H.sec.hint.length}`;
@@ -1101,12 +1191,12 @@ async function lbCheck(cands, since = 0){
     <div class="head">🏆 恭喜！你可以登上排行榜！</div>
     <ul>${wins.map(w => `<li>${w.b.icon} ${w.b.name}：<b>${w.b.fmt(w.value)}</b><span class="rk">第 ${w.rank} 名</span></li>`).join('')}</ul>
     <label class="nm">輸入你的名字<input id="lbName" maxlength="12" autocomplete="nickname" placeholder="最多 12 個字" value="${esc(S.name || '')}"></label>
-    <div class="me2"><canvas data-ic="${S.pet}" width="20" height="20"></canvas><span>會和你的小夥伴一起顯示在排行榜上</span></div>
+    <div class="me2"><canvas data-pc="${S.pet}"></canvas><span>會和你的小夥伴一起顯示在排行榜上</span></div>
     <p class="err" id="lbErr" hidden></p>
     <div class="row"><button class="btn" id="lbGo">🏆 登上排行榜</button><button class="btn alt" id="lbNo">先不要</button></div>
   </div>`;
   $('modal').hidden = false;
-  $('modal').querySelectorAll('[data-ic]').forEach(c => c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0));
+  paintPets($('modal'));
   setTimeout(() => $('lbName').focus(), 50);
   $('lbNo').onclick = closeModal;
   const go = async () => {
@@ -1134,10 +1224,10 @@ async function showBoard(tab = 'score', data = null){
       <div class="tabs">${BOARDS.map(x => `<button class="tab ${x.id === tab ? 'on' : ''}" data-tab="${x.id}">${x.icon} ${x.name}</button>`).join('')}</div>
       <div class="lbnote">${tab === 'time' ? '一輪 20 題全部答對，從開始到答完所花的時間' : tab === 'total' ? '這台裝置累積答過的題數' : '一輪 20 題拿到的最高分數（含 COMBO 獎勵）'}</div>
       ${updating && !msg ? '<div class="lbupd">🔄 更新中…（先顯示上次讀到的排行）</div>' : ''}
-      ${msg ? `<p class="lbmsg">${msg}</p>` : list.length ? `<ol class="lblist">${list.map((e, i) => `<li class="${e.pid === myId() ? 'me' : ''}"><span class="no">${['🥇', '🥈', '🥉'][i] || i + 1}</span><canvas data-ic="${esc(e.pet || '🐕')}" width="20" height="20"></canvas><span class="nm">${esc(e.name)}${e.pid === myId() ? '（你）' : ''}</span><span class="v">${b.fmt(e.value)}</span></li>`).join('')}</ol>` : '<p class="lbmsg">還沒有人上榜，快去挑戰吧！</p>'}
+      ${msg ? `<p class="lbmsg">${msg}</p>` : list.length ? `<ol class="lblist">${list.map((e, i) => `<li class="${e.pid === myId() ? 'me' : ''}"><span class="no">${['🥇', '🥈', '🥉'][i] || i + 1}</span><canvas data-pc="${esc(e.pet || 'dog')}"></canvas><span class="nm">${esc(e.name)}${e.pid === myId() ? '（你）' : ''}</span><span class="v">${b.fmt(e.value)}</span></li>`).join('')}</ol>` : '<p class="lbmsg">還沒有人上榜，快去挑戰吧！</p>'}
     </div>`;
     $('modal').hidden = false;
-    $('modal').querySelectorAll('[data-ic]').forEach(c => { try { c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0); } catch (e){} });
+    paintPets($('modal'));
     $('modal').querySelectorAll('[data-tab]').forEach(t => t.onclick = () => { tab = t.dataset.tab; SFX.blip(); paint(); });
     $('modal').querySelector('[data-close]').onclick = closeModal;
   };
@@ -1166,7 +1256,7 @@ function confetti(){
 $('view').addEventListener('click', e => {
   audio();
   const pt = e.target.closest('[data-pet]');
-  if (pt){ S.pet = pt.dataset.pet; save(); SFX.blip(); $('view').querySelectorAll('[data-pet]').forEach(b => { const on = b === pt; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); }); if (SCENE) SCENE.happy(); return; }
+  if (pt){ S.pet = pt.dataset.pet; save(); SFX.blip(); $('view').querySelectorAll('[data-pet]').forEach(b => { const on = b === pt; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); }); if (SCENE){ SCENE.alive = false; SCENE = startScene($('heroCv'), '#3ce0ff', 40); SCENE.happy(); } return; }
   if (e.target.closest('[data-mix]')){ startMission('mix'); return; }
   const un = e.target.closest('[data-unit]'); if (un){ startMission(+un.dataset.unit); return; }
   if (!Q || Q.done) return;
