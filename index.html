@@ -1,0 +1,1206 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<!-- 主畫面（max-edulab 入口）用的標籤：主畫面會讀這些 meta 來顯示、搜尋、排序 -->
+<meta name="edulab:title" content="社會任務">
+<meta name="edulab:stage" content="國小六年級">
+<meta name="edulab:subject" content="社會">
+<meta name="edulab:tags" content="民主發展,二二八,戒嚴,美麗島,憲法,權利義務,五院,地方自治,少子化,性別平等,宗教,原住民族,上學期">
+<meta name="edulab:desc" content="臺灣民主、憲法權利、政府運作、社會變遷、性別平等與宗教文化的闖關任務：每次 20 題、答錯附詳解，還有會跑來跑去的小夥伴和知識卡。">
+<meta name="edulab:icon" content="🚀">
+<meta name="description" content="臺灣民主、憲法權利、政府運作、社會變遷、性別平等與宗教文化的闖關任務：每次 20 題、答錯附詳解，還有會跑來跑去的小夥伴和知識卡。">
+<title>社會任務</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* 版面：一台深色的復古遊戲機——任務大廳選單元，任務畫面上方是像素場景和機器人嚮導，下面是對話框和選項。故意只做一種夜色配色。 */
+:root{
+  --bg:#141a3a; --bg2:#0e1330; --panel:#20285a; --panel2:#2a3370; --line:#0b0e22;
+  --text:#f4f1ff; --dim:#a9a6d6; --gold:#ffcf3f; --cyan:#3ce0ff; --pink:#ff5fa2; --green:#3ccf6e; --red:#ff5a5a;
+  --u1:#ff6b6b; --u2:#ffb84d; --u3:#4dd2ff; --u4:#6be07a; --u5:#c48bff;
+  --f:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;
+  --px:"Press Start 2P",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--f);
+  background-image:radial-gradient(circle at 20% 10%,rgba(60,224,255,.08),transparent 40%),radial-gradient(circle at 85% 80%,rgba(255,95,162,.08),transparent 40%);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px}
+button{font:inherit;color:inherit;cursor:pointer}
+.wrap{max-width:980px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+
+/* ---------- 上方 bar ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.logo{margin:0;font-size:20px;font-weight:900;display:flex;align-items:center;gap:8px;text-shadow:3px 3px 0 var(--line)}
+.logo .px{font-family:var(--px);font-size:10px;color:var(--gold)}
+.me{display:flex;align-items:center;gap:8px;background:var(--panel);border:3px solid var(--line);box-shadow:0 4px 0 var(--line);padding:4px 10px}
+.me .lv{font-family:var(--px);font-size:11px;color:var(--gold)}
+.me .ttl{font-weight:900;font-size:14px}
+.xpbar{width:90px;height:10px;background:var(--bg2);border:2px solid var(--line)}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,var(--cyan),var(--green))}
+.btns{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font-weight:900;font-size:14px;background:var(--panel2);border:3px solid var(--line);box-shadow:0 3px 0 var(--line);padding:3px 10px}
+.chip:active{transform:translateY(3px);box-shadow:none}
+.chip[aria-pressed="false"]{opacity:.55}
+
+/* ---------- 任務大廳 ---------- */
+.hero{position:relative;background:var(--panel);border:4px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.35);overflow:hidden}
+.hero canvas{display:block;width:100%;height:80px;image-rendering:pixelated}
+.hero .txt{display:flex;flex-direction:column;gap:2px;padding:10px 16px 8px}
+.hero h2{margin:0;font-size:clamp(22px,4vw,34px);font-weight:900;text-shadow:3px 3px 0 var(--line)}
+.hero p{margin:0;font-weight:700;color:var(--gold);text-shadow:2px 2px 0 var(--line);font-size:14px}
+.units{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr));gap:12px}
+.unit{position:relative;text-align:left;display:flex;flex-direction:column;gap:6px;background:var(--panel);border:4px solid var(--line);box-shadow:0 6px 0 var(--line);padding:12px 14px 14px;border-top:8px solid var(--c)}
+.unit:hover{background:var(--panel2)}
+.unit:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.unit .top{display:flex;align-items:center;gap:10px}
+.unit canvas{width:48px;height:48px;image-rendering:pixelated;flex:none}
+.unit .no{font-family:var(--px);font-size:10px;color:var(--c)}
+.unit h3{margin:2px 0 0;font-size:18px;line-height:1.3;font-weight:900;text-wrap:balance}
+.unit ul{margin:0;padding-left:1.1em;color:var(--dim);font-size:13px;line-height:1.6}
+.unit .meta{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;font-weight:700;font-size:13px}
+.stars{font-size:18px;letter-spacing:1px;color:var(--gold)}
+.stars .off{color:#4a4f86}
+.unit .go{font-family:var(--px);font-size:10px;background:var(--c);color:var(--line);padding:6px 8px;border:2px solid var(--line)}
+.tipline{color:var(--dim);font-size:13px;text-align:center;margin:0}
+
+/* ---------- 任務畫面 ---------- */
+.hud{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.hud .uname{font-weight:900;font-size:16px;color:var(--c)}
+.dots{display:flex;gap:4px;flex:1;min-width:120px}
+.dots i{flex:1;height:10px;background:var(--bg2);border:2px solid var(--line)}
+.dots i.ok{background:var(--green)}.dots i.no{background:var(--red)}.dots i.now{background:var(--gold)}
+.combo{font-family:var(--px);font-size:11px;color:var(--pink);min-width:84px;text-align:right}
+.score{font-family:var(--px);font-size:11px;color:var(--gold)}
+.scene{position:relative;border:4px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.35);background:var(--bg2)}
+.scene canvas{display:block;width:100%;height:72px;image-rendering:pixelated}
+.scene.shake{animation:shake .35s}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.float{position:absolute;font-family:var(--px);font-size:14px;color:var(--gold);text-shadow:2px 2px 0 var(--line);pointer-events:none;animation:up 1.1s forwards}
+@keyframes up{to{transform:translateY(-50px);opacity:0}}
+.bubble{position:relative;background:var(--text);color:var(--line);border:4px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.35);padding:12px 16px}
+.bubble::before{content:"";position:absolute;left:34px;top:-16px;border:8px solid transparent;border-bottom-color:var(--line)}
+.bubble .tag{display:inline-block;font-size:12px;font-weight:900;background:var(--c);color:var(--line);border:2px solid var(--line);padding:0 8px;margin-bottom:6px}
+.bubble .kind{font-family:var(--px);font-size:9px;color:#6a5a9a;margin-left:6px}
+.bubble .q{font-size:clamp(18px,2.6vw,22px);font-weight:900;line-height:1.55;margin:0;text-wrap:pretty}
+.bubble .q em{font-style:normal;color:#d0204a;text-decoration:underline}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.opt{display:flex;align-items:center;gap:10px;text-align:left;background:var(--panel);border:3px solid var(--line);box-shadow:0 5px 0 var(--line);padding:10px 12px;font-size:17px;font-weight:700;line-height:1.4;min-height:56px}
+.opt .k{flex:none;font-family:var(--px);font-size:11px;width:26px;height:26px;display:grid;place-items:center;background:var(--bg2);color:var(--c);border:2px solid var(--line)}
+.opt:hover:not(:disabled){background:var(--panel2)}
+.opt:active:not(:disabled){transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.opt.ok{background:#1f6a3e;border-color:var(--green)}
+.opt.no{background:#6a1f2e;border-color:var(--red)}
+.opt:disabled{cursor:default}
+.opt.dim{opacity:.45}
+.tf{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tf .opt{justify-content:center;font-size:22px;font-weight:900;min-height:72px}
+.order-pool,.order-line{display:flex;flex-wrap:wrap;gap:8px}
+.order-line{min-height:56px;background:var(--bg2);border:3px dashed #4a4f86;padding:8px}
+.order-line .ph{color:var(--dim);font-size:14px;align-self:center}
+.chipq{background:var(--panel);border:3px solid var(--line);box-shadow:0 4px 0 var(--line);padding:8px 12px;font-weight:700;font-size:16px}
+.chipq .n{font-family:var(--px);font-size:10px;color:var(--gold);margin-right:6px}
+.chipq.ok{border-color:var(--green)}.chipq.no{border-color:var(--red)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+.btn{font-weight:900;font-size:17px;background:var(--gold);color:var(--line);border:3px solid var(--line);box-shadow:0 5px 0 var(--line);padding:8px 18px}
+.btn.alt{background:var(--panel2);color:var(--text)}
+.btn.hint{background:var(--cyan)}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn:disabled{opacity:.5;cursor:default}
+.fb{background:var(--panel);border:3px solid var(--line);border-left:10px solid var(--green);padding:10px 14px;display:flex;flex-direction:column;gap:6px}
+.fb.bad{border-left-color:var(--red)}
+.fb .h{font-weight:900;font-size:18px}
+.fb .x{color:var(--dim);font-size:15px;line-height:1.7}
+.fb .x b{color:var(--gold)}
+.newcard{font-family:var(--px);font-size:10px;color:var(--pink)}
+
+/* ---------- 結算 ---------- */
+.result{background:var(--panel);border:4px solid var(--line);box-shadow:6px 6px 0 rgba(0,0,0,.35);padding:20px;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center}
+.rank{font-family:var(--px);font-size:64px;color:var(--gold);text-shadow:5px 5px 0 var(--line);line-height:1}
+.result .stars{font-size:40px}
+.result .sum{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-weight:700}
+.result .sum b{font-family:var(--px);font-size:13px;color:var(--cyan)}
+.lvup{font-family:var(--px);font-size:13px;color:var(--pink);animation:blink .6s steps(2) 6}
+@keyframes blink{50%{opacity:0}}
+.gotcards{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+
+.mixbtn{font-weight:900;font-size:17px;text-align:left;background:linear-gradient(90deg,var(--u1),var(--u2));color:var(--line);border:4px solid var(--line);box-shadow:0 6px 0 var(--line);padding:12px 16px}
+.mixbtn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--line)}
+.unit .sub{margin:0;color:var(--dim);font-size:14px}
+.fb .ref{font-size:14px;color:var(--dim);line-height:1.7}
+.fb .ref b{color:var(--cyan)}
+.fb .x .lab{display:inline-block;font-size:12px;font-weight:900;background:var(--gold);color:var(--line);padding:0 6px;margin-right:6px}
+.review{background:var(--bg2);border:3px solid var(--line);padding:10px 14px;text-align:left;font-size:14px;line-height:1.8;width:100%;max-width:620px;color:var(--dim)}
+.review b{color:var(--gold)}
+.pets{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pets .lab{font-weight:900;color:var(--gold);margin-right:4px}
+.pet{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--panel);border:3px solid var(--line);box-shadow:0 3px 0 var(--line);padding:4px 6px;font-size:12px;font-weight:700;min-width:52px}
+.pet canvas{width:32px;height:32px;image-rendering:pixelated}
+.pet.on{background:var(--gold);color:var(--line)}
+.pet:active{transform:translateY(3px);box-shadow:none}
+.confetti{position:fixed;inset:0;z-index:40;pointer-events:none}
+.lbwin,.lbbox{width:min(480px,100%);background:var(--panel);border:4px solid var(--line);box-shadow:8px 8px 0 rgba(0,0,0,.5);display:flex;flex-direction:column;gap:10px;padding-bottom:14px}
+.lbwin .head,.lbbox .head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--gold);color:var(--line);font-weight:900;font-size:18px}
+.lbwin ul{margin:0;padding:0 18px;list-style:none;display:flex;flex-direction:column;gap:6px;font-size:16px}
+.lbwin li b{color:var(--gold)}
+.lbwin .rk{margin-left:8px;font-family:var(--px);font-size:10px;color:var(--pink)}
+.lbwin .nm{display:flex;flex-direction:column;gap:6px;padding:0 18px;font-weight:900}
+.lbwin input{font:inherit;font-size:20px;font-weight:700;padding:8px 10px;border:3px solid var(--line);background:var(--text);color:var(--line)}
+.lbwin .me2{display:flex;align-items:center;gap:10px;padding:0 18px;color:var(--dim);font-size:14px}
+.lbwin .me2 canvas,.lblist canvas{width:32px;height:32px;image-rendering:pixelated;flex:none}
+.lbwin .err{margin:0 18px;color:var(--red);font-weight:700}
+.lbwin .row,.lbbox .row{padding:0 14px}
+.lbbox .x{background:none;border:0;font-size:18px;font-weight:900;color:var(--line)}
+.lbbox .tabs{display:flex;gap:6px;padding:0 12px;flex-wrap:wrap}
+.lbbox .tab{flex:1;min-width:0;font-weight:900;font-size:14px;background:var(--bg2);border:3px solid var(--line);padding:6px 4px;color:var(--dim)}
+.lbbox .tab.on{background:var(--cyan);color:var(--line)}
+.lbnote{padding:0 14px;color:var(--dim);font-size:13px}
+.lbmsg{padding:10px 14px;margin:0;color:var(--dim);text-align:center}
+.lblist{margin:0;padding:0 12px;list-style:none;display:flex;flex-direction:column;gap:4px;max-height:60vh;overflow:auto}
+.lblist li{display:flex;align-items:center;gap:10px;background:var(--bg2);border:2px solid var(--line);padding:4px 10px;font-weight:700}
+.lblist li.me{background:#3a3170;border-color:var(--gold)}
+.lblist .no{width:28px;text-align:center;font-family:var(--px);font-size:11px;color:var(--gold)}
+.lblist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lblist .v{font-family:var(--px);font-size:11px;color:var(--cyan)}
+.lbupd{padding:0 14px;color:var(--cyan);font-size:13px;font-weight:700}
+/* ---------- 知識卡圖鑑 ---------- */
+.dex h3{margin:6px 0;font-size:17px;color:var(--c)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,210px),1fr));gap:10px}
+.card{background:var(--panel);border:3px solid var(--line);border-top:6px solid var(--c);padding:10px;display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.6;color:var(--dim)}
+.card canvas{width:36px;height:36px;image-rendering:pixelated;flex:none}
+.card b{display:block;color:var(--text);font-size:14px}
+.card.lock{opacity:.5}
+.card.lock canvas{filter:brightness(0)}
+
+/* ---------- 提示動畫 ---------- */
+.modal{position:fixed;inset:0;z-index:20;background:rgba(5,8,25,.75);display:flex;align-items:center;justify-content:center;padding:16px}
+.hintbox{width:min(560px,100%);background:var(--panel);border:4px solid var(--line);box-shadow:8px 8px 0 rgba(0,0,0,.5);display:flex;flex-direction:column}
+.hintbox .head{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--cyan);color:var(--line);font-weight:900}
+.hintbox .head .px{font-family:var(--px);font-size:10px}
+.hintbox canvas{display:block;width:100%;height:auto;image-rendering:pixelated;background:var(--bg2);border-block:4px solid var(--line)}
+.hintbox .cap{min-height:4.8em;padding:12px 16px;font-size:17px;font-weight:700;line-height:1.7}
+.hintbox .row{padding:0 12px 12px;justify-content:space-between}
+.hintbox .pg{font-family:var(--px);font-size:10px;color:var(--dim)}
+.help{background:var(--panel);border:4px solid var(--line);padding:16px 20px;max-width:560px;line-height:1.8;font-size:15px}
+.help h3{margin:0 0 6px;color:var(--gold)}
+.help ul{margin:0 0 10px;padding-left:1.2em}
+
+@media (max-width:640px){
+  .opts{grid-template-columns:minmax(0,1fr)}
+  .tf{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .opt{font-size:16px;min-height:50px}
+  .xpbar{width:60px}
+  .logo{font-size:17px}
+  .hero p{font-size:12px}
+  .rank{font-size:48px}
+}
+@media (prefers-reduced-motion:reduce){.float,.lvup,.scene.shake{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <h1 class="logo"><span class="px">QUEST</span>社會任務</h1>
+    <div class="me" id="me"></div>
+    <div class="btns">
+      <button class="chip" id="btnHome">🏠 主畫面</button>
+      <button class="chip" id="btnRank">🏆 排行榜</button><button class="chip" id="btnDex">📚 知識卡</button>
+      <button class="chip" id="btnSnd" aria-pressed="true">🔊 音效</button>
+      <button class="chip" id="btnHelp">❓ 說明</button>
+    </div>
+  </header>
+  <main id="view"></main>
+</div>
+<div class="modal" id="modal" hidden></div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const shuffle = a => { for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const INK = '#0b0e22';
+
+// ---------- 聲音 ----------
+let AC = null, muted = false;
+function audio(){ if (!AC){ try { AC = new (window.AudioContext || window.webkitAudioContext)(); } catch (e){ return null; } } if (AC.state === 'suspended') AC.resume(); return AC; }
+function beep(f, d, type = 'square', v = .05, when = 0){
+  if (muted) return; const a = audio(); if (!a) return;
+  const t = a.currentTime + when, o = a.createOscillator(), g = a.createGain();
+  o.type = type; o.frequency.setValueAtTime(f, t); g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .03);
+}
+const SFX = {
+  blip: () => beep(880, .05, 'square', .04),
+  ok:   () => [659, 784, 1047].forEach((f, i) => beep(f, .1, 'square', .05, i * .07)),
+  combo:() => [784, 988, 1175, 1568].forEach((f, i) => beep(f, .09, 'square', .05, i * .06)),
+  no:   () => { beep(196, .14, 'sawtooth', .05); beep(147, .22, 'sawtooth', .05, .12); },
+  win:  () => [523, 659, 784, 1047, 784, 1047, 1319].forEach((f, i) => beep(f, i === 6 ? .5 : .12, 'square', .05, i * .12)),
+  page: () => beep(1200, .03, 'triangle', .04)
+};
+
+// ---------- 像素圖：把 emoji 縮成小像素圖，加一圈深色描邊 ----------
+const SPR = {};
+function sprite(e, n = 20){
+  const key = e + n; if (SPR[key]) return SPR[key];
+  const big = document.createElement('canvas'); big.width = big.height = 80;
+  const bg = big.getContext('2d');
+  bg.font = '50px "Segoe UI Emoji","Apple Color Emoji","Noto Color Emoji",sans-serif'; bg.textAlign = 'center'; bg.textBaseline = 'middle';
+  bg.fillText(e, 40, 43);
+  const bd = bg.getImageData(0, 0, 80, 80).data;
+  let x0 = 80, y0 = 80, x1 = -1, y1 = -1;
+  for (let y = 0; y < 80; y++) for (let x = 0; x < 80; x++) if (bd[(y * 80 + x) * 4 + 3] > 40){ if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }
+  const c = document.createElement('canvas'); c.width = c.height = n;
+  const g = c.getContext('2d');
+  if (x1 >= 0){ const w = x1 - x0 + 1, h = y1 - y0 + 1, sc = Math.min((n - 2) / w, (n - 2) / h); g.drawImage(big, x0, y0, w, h, 1 + (n - 2 - w * sc) / 2, 1 + (n - 2 - h * sc) / 2, w * sc, h * sc); }
+  const id = g.getImageData(0, 0, n, n), d = id.data;
+  for (let i = 3; i < d.length; i += 4) d[i] = d[i] < 110 ? 0 : 255;
+  g.putImageData(id, 0, 0);
+  const op = i => d[i * 4 + 3] > 0, edge = [];
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++){ const i = y * n + x; if (op(i)) continue; if ((x > 0 && op(i - 1)) || (x < n - 1 && op(i + 1)) || (y > 0 && op(i - n)) || (y < n - 1 && op(i + n))) edge.push(i); }
+  g.fillStyle = INK; edge.forEach(i => g.fillRect(i % n, Math.floor(i / n), 1, 1));
+  return (SPR[key] = c);
+}
+const fP = (g, x, y, c, w = 1, h = 1) => { g.fillStyle = c; g.fillRect(x, y, w, h); };
+
+/* ================= 題庫：依史實與公民常識自行撰寫（國中程度），每題附詳解 =================
+   TOPICS：六大主題；SECS：主題底下的觀念（出題時平均分配到每個觀念、提示動畫、知識卡）
+   C 選擇題（第一個選項是正確答案，出題時會打亂）、T 是非題、O 排順序（依正確順序寫）；最後一個參數是詳解 */
+const TOPICS = [
+  { c:'var(--u1)', hex:'#ff6b6b', icon:'🗳️', name:'臺灣民主之路', props:['🏛️', '🗳️', '📜'], sub:'從日本統治到總統直選' },
+  { c:'var(--u2)', hex:'#ffb84d', icon:'📕', name:'憲法與人民的權利義務', props:['📕', '⚖️', '🙋'], sub:'平等、自由、參政和三大義務' },
+  { c:'var(--u3)', hex:'#4dd2ff', icon:'🏛️', name:'政府怎麼為人民做事', props:['🏛️', '🏢', '📢'], sub:'五院、地方自治與民意參與' },
+  { c:'var(--u4)', hex:'#6be07a', icon:'🏫', name:'社會變遷：教育與家庭', props:['🏫', '👪', '📊'], sub:'學校、家庭和人口的改變' },
+  { c:'var(--u5)', hex:'#c48bff', icon:'⚖️', name:'性別平等', props:['⚖️', '🎓', '🚻'], sub:'觀念、法律與女性受教育的歷史' },
+  { c:'var(--pink)', hex:'#ff5fa2', icon:'⛩️', name:'宗教信仰與多元族群', props:['⛩️', '⛪', '🕌'], sub:'各族群帶來的信仰與互相尊重' }
+];
+const SECS = [
+  // ---- 主題 1 臺灣民主之路 ----
+  { id:'a1', t:0, title:'從割讓到戰後接收', key:'1895 年甲午戰爭後臺灣被割讓給日本，統治約 50 年；1912 年中華民國成立；1945 年日本戰敗，中華民國接收臺灣。',
+    hint:[['⚔️ 🚢 📜', '1895 年，清朝在甲午戰爭打敗，簽約把臺灣和澎湖讓給日本。'], ['🎌 1 9 1 2', '1911 年革命推翻清朝，1912 年中華民國成立；這時臺灣仍由日本統治。'], ['🕊️ 1 9 4 5', '1945 年二戰結束，日本投降，中華民國政府接收臺灣。']] },
+  { id:'a2', t:0, title:'戰後初期與二二八事件', key:'接收初期物價飛漲、官員貪腐、臺灣人少有機會擔任要職，民怨累積；1947 年查緝私菸引發二二八事件，政府派兵鎮壓，許多人遇害。',
+    hint:[['💸 📈 🍚', '戰後物資缺乏、物價一直漲，生活變得很辛苦。'], ['🚬 💥 📢', '1947 年 2 月 27 日，查緝私菸時打傷民眾，隔天的抗議演變成全臺衝突。'], ['🪖 😢', '政府派軍隊鎮壓，許多人死傷或失蹤，大家從此不敢談論政治。']] },
+  { id:'a3', t:0, title:'戒嚴時期', key:'1949 年臺灣宣布戒嚴，同年中央政府遷臺；戒嚴長達 38 年，集會、言論、組黨、辦報都受到限制，許多人因政治理由被捕（白色恐怖）。',
+    hint:[['📜 🪖 1 9 4 9', '1949 年政府宣布臺灣戒嚴，同一年中央政府從中國大陸遷到臺灣。'], ['🚫 📰 🎌 👥', '戒嚴時期不能自由組新政黨、辦新報紙，集會遊行也被禁止。'], ['⛓️ 🏝️', '許多人因為思想或言論被抓去關，這段時期被稱為「白色恐怖」。']] },
+  { id:'a4', t:0, title:'美麗島事件與民主運動', key:'1979 年美麗島雜誌在高雄舉辦世界人權日活動，與軍警爆發衝突；參與者受軍法審判，卻讓更多人關心民主，也培養出後來的政治人物。',
+    hint:[['📖 ✍️', '戒嚴時期，有人用辦雜誌的方式批評時政、宣傳民主。'], ['🔥 1 2 / 1 0', '1979 年世界人權日，美麗島雜誌社在高雄的活動演變成衝突。'], ['⚖️ 📺 👥', '審判過程被報導出來，反而讓更多人支持民主改革。']] },
+  { id:'a5', t:0, title:'解嚴與民主化', key:'1987 年解嚴、1988 年解除報禁、1991～1992 年國會全面改選、1996 年第一次總統直選、2000 年第一次政黨輪替、2016 年選出第一位女性總統。',
+    hint:[['🔓 1 9 8 7', '1987 年解除戒嚴，隔年報禁解除，報紙一家家創立。'], ['🏛️ 🗳️ 1 9 9 6', '國會全面改選後，1996 年人民第一次直接選總統。'], ['🔄 2 0 0 0 👩 2 0 1 6', '2000 年政黨輪替，2016 年選出第一位女性總統。']] },
+  // ---- 主題 2 憲法與人民的權利義務 ----
+  { id:'b1', t:1, title:'憲法是國家的根本大法', key:'憲法規定國家的組織和人民的權利義務，其他法律不能違反憲法；憲法也可以依程序修改，例如加入總統直選、原住民族權益。',
+    hint:[['📕 👑', '憲法是國家最高、最根本的法律。'], ['📜 ❌ 📕', '一般法律如果和憲法衝突，就不能使用。'], ['✏️ 🗳️', '憲法可以照規定的程序修改，跟著時代和人民的需要調整。']] },
+  { id:'b2', t:1, title:'平等權', key:'法律之前人人平等，不因性別、宗教、種族、階級、黨派而有差別；為照顧弱勢而設的「合理差別待遇」不違反平等。',
+    hint:[['⚖️ 👦 👧 🧕', '在法律面前，不管性別、宗教、種族，大家都一樣。'], ['♿ 🅿️', '為了讓弱勢的人也能真正平等，可以有合理的特別照顧。'], ['🚫 💢', '沒有正當理由的差別對待，就是歧視。']] },
+  { id:'b3', t:1, title:'自由權與它的界線', key:'人民有人身、居住遷徙、言論、通訊、宗教、集會結社等自由；但為了不侵害他人、維持秩序或公共利益，可以依法律做必要的限制。',
+    hint:[['🗣️ ⛪ 👥 🏠', '說話、信仰、集會、住哪裡，都是受保障的自由。'], ['🚧 ⚖️', '但自由不能傷害別人，也要守法律。'], ['📏', '政府限制自由要有法律根據，而且不能超過必要的程度。']] },
+  { id:'b4', t:1, title:'參政權', key:'參政權包括選舉、罷免、創制、複決，以及應考試、服公職；依現行規定，年滿 20 歲有選舉權，公民投票權則是 18 歲。',
+    hint:[['🗳️ 🙅', '選舉是選出代表，罷免是把不適任的代表換掉。'], ['📜 ✅', '創制、複決讓人民直接提出或決定法律、政策。'], ['🎂 2 0 / 1 8', '選舉權 20 歲，公民投票權 18 歲。']] },
+  { id:'b5', t:1, title:'受益權', key:'人民可以要求國家提供保障或服務，例如請願、訴願、訴訟，以及受教育、生存、工作等權利。',
+    hint:[['🙋 📨', '權益受損時，可以向政府請願、提出訴願。'], ['⚖️ 🏛️', '也可以到法院提起訴訟，請法院主持公道。'], ['🏫 💼', '受教育、工作和生存，都需要國家保障。']] },
+  { id:'b6', t:1, title:'人民的三大義務', key:'憲法規定人民有納稅、服兵役、受國民教育的義務；其中國民教育既是權利也是義務。',
+    hint:[['💰 🧾', '納稅：讓政府有錢做建設、提供服務。'], ['🪖 🛡️', '服兵役：保衛國家安全。'], ['🏫 🎒', '受國民教育：既是權利也是義務，6～15 歲一定要上學。']] },
+  // ---- 主題 3 政府怎麼為人民做事 ----
+  { id:'c1', t:2, title:'主權在民與選舉', key:'民主國家的權力來自人民；人民透過定期選舉選出領導人和民意代表，不滿意可以在下次選舉換人，或依法罷免。',
+    hint:[['👥 👑', '在民主國家，人民才是國家的主人。'], ['🗳️ ➡️ 🏛️', '人民用選票決定由誰來執政。'], ['🔄', '做得不好，下次選舉就可以換人。']] },
+  { id:'c2', t:2, title:'中央政府與五院', key:'中央政府由總統和行政、立法、司法、考試、監察五院組成：行政院執行政策、立法院制定法律和審預算、司法院負責審判、考試院辦國家考試、監察院監督官員。',
+    hint:[['👑', '總統是國家元首，代表國家。'], ['🏢 📜 ⚖️', '行政院做事、立法院定法律、司法院審判。'], ['📝 🔍', '考試院選拔公務員、監察院監督官員有沒有失職。']] },
+  { id:'c3', t:2, title:'一條法律怎麼誕生', key:'法律草案在立法院經過討論、三讀通過後，送請總統公布才開始施行；行政機關再依法律執行。',
+    hint:[['📝 🏛️', '法律草案送到立法院，委員們討論、修改。'], ['🙋 3️⃣', '經過三次宣讀和表決（三讀）才算通過。'], ['✍️ 👑 ➡️ 🏢', '總統公布後生效，行政機關照著執行。']] },
+  { id:'c4', t:2, title:'地方自治', key:'地方政府分為行政機關（縣市政府）和立法機關（縣市議會）；縣市長和議員都由居民選出，處理衛生、教育、交通等地方事務。',
+    hint:[['🏙️ 6️⃣', '臺灣有 6 個直轄市，以及其他縣市。'], ['🏢 🦟 🚌', '縣市政府辦地方事務：防疫、教育、交通、垃圾清運。'], ['🗳️ 👥 👀', '縣市議會由議員組成，審議自治法規、監督縣市政府。']] },
+  { id:'c5', t:2, title:'中央與地方合作、人民表達意見', key:'中央訂政策和法律、地方負責執行並監督；人民可以透過公聽會、陳情專線、網路參與平臺、民意代表或合法集會遊行表達意見。',
+    hint:[['🏛️ 🤝 🏢', '很多問題需要中央訂規則、地方去執行。'], ['🎤 ☎️ 💻', '政府辦公聽會、設專線和網路平臺，聽取民眾意見。'], ['📢 🗳️', '人民也可以找民意代表或合法集會遊行，要求改善。']] },
+  { id:'c6', t:2, title:'政策與人民權益的平衡', key:'政府為了公共利益採取的措施，可能影響部分人的權益；這時應依法提供補償、救助和申訴管道，限制也不能超過必要的程度。',
+    hint:[['🦠 🚫', '為了防疫，政府曾限制群聚、禁止餐廳內用。'], ['📉 🏪', '這些措施保護了大家，卻讓部分業者收入減少。'], ['💰 📝', '政府用紓困、補助和申訴管道，照顧受影響的人。']] },
+  // ---- 主題 4 社會變遷：教育與家庭 ----
+  { id:'d1', t:3, title:'受教育的機會擴大', key:'日治時期臺灣人與日本人的學校分開；戰後推行國民教育，1968 年延長為九年，2014 年實施十二年國民基本教育。',
+    hint:[['🏫 🏫', '日治時期，日本孩子和臺灣孩子大多讀不同的學校。'], ['6️⃣ ➡️ 9️⃣', '1968 年，國民教育從六年延長為九年。'], ['🎓 1 2', '2014 年起實施十二年國教，高中職免試入學為主。']] },
+  { id:'d2', t:3, title:'學校教育的轉變', key:'過去學校重視紀律與升學考試（髮禁、聯考）；現在強調多元學習、適性發展，並有實驗教育等不同選擇。',
+    hint:[['💇 📏 📝', '以前有髮禁和嚴格的服儀規定，升學靠一次聯考決定。'], ['🎨 🔬 🗣️', '現在鼓勵探索興趣、表達想法、多元學習。'], ['🌳 🏫', '家長也可以讓孩子參加實驗教育，學習方式更多樣。']] },
+  { id:'d3', t:3, title:'家庭型態的改變', key:'農業社會常見多代同堂的大家庭；工商業社會以小家庭為主，單人家庭、夫妻家庭、單親家庭等型態也越來越多。',
+    hint:[['🌾 👴 👨 👦', '農業社會需要人手，常常好幾代住在一起。'], ['🏙️ 👨‍👩‍👧', '到都市工作後，以父母和孩子組成的小家庭為主。'], ['👤 👫', '現在一個人住、只有夫妻兩人的家庭也越來越多。']] },
+  { id:'d4', t:3, title:'少子化與高齡化', key:'臺灣出生數下降、平均壽命延長：少子化讓學校減班、勞動力不足；高齡化讓長期照顧需求增加。',
+    hint:[['👶 📉', '每年出生的寶寶越來越少，這是少子化。'], ['👵 📈', '老年人口比例越來越高，這是高齡化。'], ['🏫 🏥', '學校減班、照顧長輩的需求增加，都是社會要面對的問題。']] },
+  { id:'d5', t:3, title:'家庭價值觀與親子關係', key:'過去重視傳宗接代、子承父業；現在更尊重個人選擇，親子關係更平等，但也面臨就業、照顧等新挑戰。',
+    hint:[['👴 👦 🏪', '以前常希望孩子繼承家業、早點成家。'], ['🎨 💭 🤝', '現在父母多支持孩子依興趣發展，彼此更平等溝通。'], ['💬 ❤️', '面對新的挑戰，家人需要更多理解和尊重。']] },
+  // ---- 主題 5 性別平等 ----
+  { id:'e1', t:4, title:'性別平等的觀念', key:'性別平等指不論性別，都享有相同的權利、機會與尊重；打破「男生就該…、女生就該…」的刻板印象。',
+    hint:[['⚖️ 👦 👧', '不論性別，權利、機會和尊重都應該一樣。'], ['🚫 🏷️', '「男生不能哭」「女生不適合理工」都是刻板印象。'], ['🌈 🤝', '尊重每個人的特質，讓大家都能發揮潛能。']] },
+  { id:'e2', t:4, title:'法律與制度的保障', key:'臺灣有性別平等教育法、性別平等工作法等法律；育嬰留職停薪父母都能申請，公共場所也設置親子廁所、性別友善廁所。',
+    hint:[['📜 🏫 💼', '法律保障學校和職場裡的性別平等。'], ['👨 🍼', '爸爸和媽媽都可以申請育嬰留職停薪。'], ['🚻 👶', '親子廁所讓任何家人都方便帶小孩如廁。']] },
+  { id:'e3', t:4, title:'女性受教育的歷史', key:'清代教育以科舉為目標、多為男性；1884 年馬偕在淡水創辦女學堂；日治時期設立高等女學校；現在女性接受高等教育的人數已與男性相當。',
+    hint:[['📜 👦', '清代讀書是為了考科舉，女生很少有機會上學。'], ['⛪ 👩‍🎓 1 8 8 4', '1884 年，馬偕在淡水創辦女學堂。'], ['🏫 🎓', '日治時期有高等女學校；現在大學生裡男女人數差不多。']] },
+  { id:'e4', t:4, title:'生活中的性別平等', key:'家務分工、職業選擇、運動與興趣都不應受性別限制；遇到性別歧視或騷擾，可以向學校、主管機關申訴。',
+    hint:[['🧹 🍳 👨 👩', '家事是全家人的事，不分男女。'], ['👩‍✈️ 👨‍⚕️', '想做什麼工作，看的是興趣和能力。'], ['🛡️ 📝', '遇到歧視或騷擾，可以向學校或主管機關申訴。']] },
+  // ---- 主題 6 宗教信仰與多元族群 ----
+  { id:'f1', t:5, title:'原住民族的信仰與祭典', key:'原住民族多信仰祖靈與自然界的神靈，各族有不同的歲時祭儀，例如阿美族豐年祭、布農族打耳祭、賽夏族巴斯達隘、達悟族飛魚祭；目前政府認定 16 族。',
+    hint:[['🏔️ 👴 🌊', '原住民族敬畏祖靈和大自然。'], ['🥁 🌾 🐟', '豐年祭、打耳祭、飛魚祭……各族有自己的祭典。'], ['1 6', '目前政府認定的原住民族共有 16 族。']] },
+  { id:'f2', t:5, title:'漢人的信仰', key:'漢人移民渡海來臺，帶來媽祖（航海守護）、王爺（驅除瘟疫）、土地公等信仰，以及佛教、道教與民間信仰；廟宇也是社區的活動中心。',
+    hint:[['🚢 🌊 🙏', '移民渡過危險的海峽，求媽祖保佑平安。'], ['⛵ 🔥', '王爺信仰相信能驅除瘟疫，有燒王船的祭典。'], ['⛩️ 🏘️', '廟宇也是村莊聚會、商量大事的地方。']] },
+  { id:'f3', t:5, title:'西方宗教的傳入', key:'17 世紀荷蘭人在南部傳播基督新教、西班牙人在北部傳播天主教；19 世紀開港後，長老教會的馬偕（北部）、馬雅各（南部）等人傳教，並辦學校、醫院。',
+    hint:[['⛵ ✝️ 1 6 2 4', '17 世紀，荷蘭人和西班牙人把基督教、天主教帶到臺灣。'], ['⛪ 🏥 🏫', '19 世紀開港後，傳教士一邊傳教，一邊辦醫院和學校。'], ['🦷 👨‍⚕️', '馬偕在北部傳教，還幫很多人拔牙看病。']] },
+  { id:'f4', t:5, title:'伊斯蘭教與新住民', key:'戰後有穆斯林隨政府來臺；近年來自印尼等國的移工和新住民增加，信仰伊斯蘭教的人數上升，臺北清真寺是代表性的禮拜場所。',
+    hint:[['🕌 🙏', '伊斯蘭教徒在清真寺禮拜，每天要祈禱好幾次。'], ['✈️ 🌏', '近年來自印尼等國的移工和新住民，很多人信仰伊斯蘭教。'], ['🍽️ ✅', '餐廳提供清真（Halal）食物，是尊重他們飲食習慣的做法。']] },
+  { id:'f5', t:5, title:'宗教自由與互相尊重', key:'憲法保障宗教信仰自由，國家不得強迫或禁止信仰；面對不同宗教，應尊重彼此的習慣與禁忌，促進理解，避免衝突。',
+    hint:[['📕 ⛪ ⛩️ 🕌', '信什麼宗教、或不信宗教，都是個人的自由。'], ['🤝 👀', '參觀別人的宗教場所，要尊重對方的規矩。'], ['💬 🌈', '多認識彼此，就能減少誤會與衝突。']] }
+];
+const C = (s, q, opts, exp) => ({ s, type:'choice', q, opts, a:0, exp });
+const T = (s, q, a, exp) => ({ s, type:'tf', q, a, exp });
+const O = (s, q, items, exp) => ({ s, type:'order', q, items, exp });
+const BANK = [
+  // ===== a1 從割讓到戰後接收 =====
+  C('a1', '臺灣在 1895 年被割讓給日本，起因是清朝在哪一場戰爭中戰敗？', ['甲午戰爭', '鴉片戰爭', '第一次世界大戰', '八國聯軍之役'], '1894 年清朝與日本爆發甲午戰爭，清朝戰敗，隔年簽訂《馬關條約》，把臺灣、澎湖割讓給日本。'),
+  C('a1', '清朝割讓臺灣、澎湖給日本，是依據哪一個條約？', ['馬關條約', '南京條約', '北京條約', '舊金山和約'], '《馬關條約》是甲午戰爭後清日之間簽訂的條約；《南京條約》則是鴉片戰爭後簽訂的。'),
+  C('a1', '日本統治臺灣大約多久？', ['約 50 年', '約 10 年', '約 100 年', '約 200 年'], '從 1895 年到 1945 年，日本統治臺灣大約 50 年。'),
+  C('a1', '中華民國是在西元哪一年成立的？', ['1912 年', '1895 年', '1945 年', '1949 年'], '1911 年辛亥革命推翻清朝，1912 年 1 月 1 日中華民國成立，這一年就是民國元年。'),
+  T('a1', '中華民國成立的時候，臺灣正處於日本統治時期。', true, '中華民國在 1912 年成立，而臺灣從 1895 年起就由日本統治，一直到 1945 年，所以兩者時間重疊。'),
+  C('a1', '日本在哪一年戰敗投降，結束了對臺灣的統治？', ['1945 年', '1937 年', '1949 年', '1911 年'], '1945 年第二次世界大戰結束，日本宣布投降，同年 10 月中華民國政府接收臺灣。'),
+  C('a1', '民國 34 年等於西元哪一年？', ['1945 年', '1934 年', '1946 年', '1923 年'], '民國紀年的換算：西元年＝民國年＋1911。所以民國 34 年＝34＋1911＝1945 年。'),
+  C('a1', '1945 年中華民國接收臺灣時，許多臺灣人原本抱持什麼心情？', ['期待脫離殖民統治，過更平等自由的生活', '希望日本繼續統治', '對未來完全不在意', '打算全部移民到日本'], '經歷五十年殖民統治，很多臺灣人期待接收後能獲得平等對待、參與政治，所以一開始熱烈歡迎。'),
+  O('a1', '把這些事件依照發生的先後排好！', ['甲午戰爭後臺灣割讓給日本', '中華民國成立', '第二次世界大戰結束', '中華民國政府接收臺灣'], '1895 年割讓 → 1912 年中華民國成立 → 1945 年二戰結束 → 同年接收臺灣。'),
+  C('a1', '每年 10 月 10 日的國慶日，是紀念哪一件事？', ['推翻清朝的革命行動（武昌起義）', '日本投降', '解除戒嚴', '第一次總統直選'], '1911 年 10 月 10 日武昌起義爆發，革命行動擴大，最後推翻清朝，因此這天成為國慶日。'),
+  // ===== a2 戰後初期與二二八事件 =====
+  C('a2', '戰後初期，臺灣民眾對政府越來越不滿，下列哪一項是主要原因？', ['物價飛漲、官員貪腐，臺灣人難以擔任重要職位', '政府發放太多獎金', '工作機會多到找不到人', '糧食太多賣不出去'], '戰後經濟混亂、通貨膨脹嚴重，部分官員貪汙，重要職位多由外省籍人士擔任，讓期待落空的臺灣人越來越不滿。'),
+  C('a2', '二二八事件發生在西元哪一年？', ['1947 年', '1945 年', '1949 年', '1979 年'], '1947 年（民國 36 年）2 月 27 日查緝私菸引發衝突，隔天 2 月 28 日擴大為全臺性的事件。'),
+  C('a2', '二二八事件的導火線是什麼？', ['查緝私菸時打傷販菸婦人，又開槍誤殺民眾', '學生考試作弊', '颱風造成嚴重災情', '外國軍隊入侵'], '1947 年 2 月 27 日，查緝員在臺北取締私菸時打傷販菸婦人，混亂中開槍打死一名民眾，引發眾怒。'),
+  C('a2', '二二八事件中，民眾隔天到政府機關抗議，結果發生了什麼事？', ['遭到開槍掃射，衝突擴大到全臺', '政府立刻答應所有要求', '大家和平解散', '政府宣布舉行選舉'], '2 月 28 日民眾到行政長官公署前抗議，卻遭到開槍，消息傳開後，衝突迅速擴大到全臺各地。'),
+  T('a2', '二二八事件後，政府從中國大陸派兵來臺鎮壓，造成許多人死傷或失蹤。', true, '政府一方面和民眾代表協商，一方面調派軍隊來臺鎮壓，許多民眾、地方菁英因此死傷或失蹤。'),
+  C('a2', '畫家陳澄波在二二八事件中出面協調，最後的遭遇是什麼？', ['遭到槍決', '當選議員', '出國留學', '獲得獎章'], '陳澄波是著名畫家，事件中擔任和平使者與軍隊協調，卻被逮捕並在嘉義公開槍決。'),
+  C('a2', '二二八事件對臺灣社會造成什麼長期影響？', ['許多人因恐懼而不敢談論、參與政治', '人民更熱衷參加選舉', '物價立刻下降', '政府馬上解除管制'], '鎮壓與後續的清查讓人們心生恐懼，長期不敢談論政治，也造成族群之間的隔閡。'),
+  C('a2', '二二八事件發生後，臺灣各地民眾組成「處理委員會」，主要向政府提出什麼要求？', ['政治改革，例如讓臺灣人參與政治、保障人權', '恢復日本統治', '提高稅金', '取消所有學校'], '處理委員會提出政治改革要求，希望實施地方自治、讓臺灣人擔任要職、保障人民權利。'),
+  T('a2', '二二八事件只發生在臺北，其他地方都沒有受到影響。', false, '事件從臺北開始，但很快擴大到基隆、嘉義、高雄等全臺各地。'),
+  C('a2', '1990 年代政府為了正視二二八事件，做了下列哪一件事？', ['公開道歉並訂定 2 月 28 日為和平紀念日', '禁止任何人談論', '把事件從歷史中刪除', '宣布重新戒嚴'], '解嚴後，政府公開道歉、立法補償受難者，並把 2 月 28 日訂為和平紀念日，希望記取教訓、促進和解。'),
+  // ===== a3 戒嚴時期 =====
+  C('a3', '臺灣在哪一年宣布實施戒嚴？', ['1949 年', '1947 年', '1945 年', '1987 年'], '1949 年 5 月，臺灣省政府主席兼警備總司令陳誠宣布臺灣戒嚴。'),
+  C('a3', '1949 年底，中華民國中央政府為什麼遷到臺灣？', ['在國共內戰中失利', '因為臺灣的天氣比較好', '為了舉辦奧運', '因為日本要求'], '國共內戰中，中華民國政府節節敗退，1949 年 12 月中央政府遷到臺灣。'),
+  C('a3', '戒嚴時期，下列哪一種情況最有可能發生？', ['不能自由成立新的政黨', '可以隨時上街遊行', '可以自由創辦報紙', '總統由人民直接選出'], '戒嚴時期實施「黨禁」和「報禁」：不能自由組新政黨、辦新報紙，集會遊行也受到嚴格限制。'),
+  C('a3', '臺灣的戒嚴大約持續了多久？', ['38 年', '10 年', '50 年', '5 年'], '從 1949 年到 1987 年解嚴，戒嚴約 38 年，是世界上持續最久的戒嚴之一。'),
+  C('a3', '戒嚴時期，許多人因為政治思想或言論被逮捕、判刑，這段時期常被稱為什麼？', ['白色恐怖', '黃金年代', '經濟奇蹟', '文藝復興'], '戒嚴時期政府以「懲治叛亂」等名義大量逮捕政治異議者，造成社會恐懼，這段時期被稱為白色恐怖。'),
+  C('a3', '「報禁」是指什麼？', ['限制新報紙的創辦和報紙的張數', '禁止人民看報紙', '報紙只能用英文', '報紙不能有照片'], '報禁限制新報紙登記，也限制每份報紙的張數，讓言論和資訊受到控制。'),
+  C('a3', '「黨禁」是指什麼？', ['禁止成立新的政黨', '禁止參加學校社團', '禁止開派對', '禁止外國人來臺'], '黨禁時期不允許成立新的政黨，政治上缺少真正的競爭。'),
+  T('a3', '戒嚴令的內容，大多是在保障人民的自由。', false, '戒嚴令的重點是限制人民的集會、言論、出版等自由，以軍事方式管理社會，和憲法保障自由的精神相反。'),
+  C('a3', '綠島曾經關押許多政治犯，現在那裡的部分設施被規劃成什麼？', ['人權文化園區', '主題樂園', '軍事基地', '購物中心'], '綠島的監獄舊址現在是白色恐怖綠島紀念園區，讓人們認識那段歷史、珍惜人權。'),
+  T('a3', '中央政府遷臺和宣布戒嚴，都發生在 1949 年。', true, '1949 年 5 月宣布臺灣戒嚴，同年 12 月中央政府遷臺。'),
+  // ===== a4 美麗島事件與民主運動 =====
+  C('a4', '美麗島事件發生在哪一年？', ['1979 年', '1947 年', '1987 年', '1996 年'], '美麗島事件發生在 1979 年 12 月 10 日。'),
+  C('a4', '美麗島事件發生在哪一座城市？', ['高雄', '臺北', '臺中', '花蓮'], '美麗島雜誌社在高雄舉辦紀念世界人權日的遊行，因此事件又稱「高雄事件」。'),
+  C('a4', '美麗島事件發生在 12 月 10 日，這一天是什麼日子？', ['世界人權日', '國慶日', '聖誕節', '光復節'], '聯合國在 1948 年 12 月 10 日通過《世界人權宣言》，後來這天就訂為世界人權日。'),
+  C('a4', '戒嚴時期，黨外人士常用什麼方式宣傳民主理念？', ['創辦雜誌、舉辦演講', '開設網路直播', '上電視廣告', '成立新的政黨並參選總統'], '戒嚴時期不能組黨、新報紙也受限，黨外人士就用創辦雜誌、舉辦演講來傳播民主觀念。'),
+  C('a4', '美麗島事件後，參與者受到軍事審判。這場審判對社會產生了什麼影響？', ['審判被公開報導，讓更多人認識並支持民主', '大家從此不再關心政治', '戒嚴馬上解除', '沒有任何人知道'], '軍法大審被媒體報導，被告在法庭上陳述理念，反而讓社會大眾更了解民主訴求，民主運動持續發展。'),
+  T('a4', '美麗島事件的辯護律師和被告家屬中，有不少人後來投入政治，成為重要的政治人物。', true, '為被告辯護的律師與受刑人家屬，許多人後來參選公職，成為民主化過程中的重要人物。'),
+  C('a4', '1986 年臺灣第一個反對黨成立時，臺灣處於什麼狀態？', ['還在戒嚴中', '已經解嚴十年', '日本統治時期', '剛剛總統直選'], '民主進步黨在 1986 年宣布成立，當時尚未解嚴，等於突破了黨禁。'),
+  T('a4', '美麗島事件發生後，臺灣人民從此不再追求民主。', false, '事件後民主運動並沒有停止，反而吸引更多人關心政治，促成了後來的解嚴和民主化。'),
+  O('a4', '依時間排排站！', ['二二八事件', '美麗島事件', '第一個反對黨成立', '解除戒嚴'], '1947 二二八事件 → 1979 美麗島事件 → 1986 民主進步黨成立 → 1987 解除戒嚴。'),
+  C('a4', '「黨外」這個名稱，指的是戒嚴時期的哪一群人？', ['不屬於執政黨、爭取民主的政治人士', '住在國外的人', '不參加任何活動的人', '政府的官員'], '當時只有執政黨等少數政黨，不屬於執政黨的民主人士就被稱為「黨外」。'),
+  // ===== a5 解嚴與民主化 =====
+  C('a5', '臺灣在哪一年解除戒嚴？', ['1987 年', '1979 年', '1996 年', '2000 年'], '1987 年 7 月 15 日解除戒嚴，結束長達 38 年的戒嚴時期。'),
+  C('a5', '解嚴後，1988 年解除了哪一項限制，新的報紙陸續創刊？', ['報禁', '宵禁', '髮禁', '海禁'], '1988 年報禁解除，開放報紙登記與增加張數，言論更加自由多元。'),
+  C('a5', '1991～1992 年間，國民大會與立法院做了什麼重大改變？', ['全面改選，改由臺灣人民選出', '全部解散', '改由總統指派', '搬到國外'], '過去國會代表長期未改選（「萬年國會」），1991～1992 年全面改選，國會終於由臺灣人民選出。'),
+  C('a5', '臺灣第一次由人民直接選舉總統，是在哪一年？', ['1996 年', '1987 年', '2000 年', '1947 年'], '1996 年舉行第一次總統直選，人民一人一票選出總統、副總統。'),
+  C('a5', '2000 年總統大選後，臺灣發生了什麼歷史性的事？', ['第一次中央政府政黨輪替', '宣布戒嚴', '第一次總統直選', '國會解散'], '2000 年由在野黨候選人當選總統，中央政府第一次和平地政黨輪替。'),
+  C('a5', '2016 年，臺灣選出了第一位什麼樣的總統？', ['女性總統', '民選總統', '外國籍總統', '軍人總統'], '2016 年選出臺灣第一位女性總統；民選總統則早在 1996 年就出現了。'),
+  C('a5', '「公民投票」是什麼？', ['人民對重要議題或法律直接投票表決', '人民選出班長', '只有官員可以投票', '投票選出最好看的人'], '公民投票讓人民對法律、重大政策直接表達同意或不同意，是直接民主的一種方式。'),
+  O('a5', '民主化的重要事件，依時間排排站！', ['解除戒嚴', '國會全面改選', '第一次總統直選', '第一次政黨輪替', '第一位女性總統'], '1987 解嚴 → 1991～1992 國會全面改選 → 1996 總統直選 → 2000 政黨輪替 → 2016 第一位女性總統。'),
+  T('a5', '一個國家能「和平地政黨輪替」，代表選舉結果被大家接受，是民主成熟的表現。', true, '執政黨輸了選舉就和平交出政權，代表大家尊重選票，這是民主政治的重要指標。'),
+  C('a5', '政府調查過去的政治迫害、平反受難者、保存歷史現場，這些工作被稱為什麼？', ['轉型正義', '都市更新', '經濟轉型', '產業升級'], '轉型正義是指民主化後，面對過去威權時期的不公義，調查真相、平反受害者並促進和解。'),
+  T('a5', '1996 年以前，臺灣的總統就已經是由人民直接投票選出的。', false, '1996 年以前，總統由國民大會選出；1996 年起才改由人民直接選舉。'),
+  // ===== b1 憲法是國家的根本大法 =====
+  C('b1', '為什麼說憲法是國家的「根本大法」？', ['它規定國家組織與人民權利義務，其他法律不能違反它', '它是最新的法律', '它只有總統能看', '它是最短的法律'], '憲法規定國家的基本架構和人民的基本權利，地位最高，一般法律或命令如果違反憲法就無效。'),
+  C('b1', '如果一條法律的內容和憲法互相衝突，會怎麼樣？', ['那條法律無效', '那條法律比較優先', '兩者都繼續有效', '由總統決定要用哪一個'], '憲法的效力最高，法律牴觸憲法者無效；是否違憲由憲法法庭判斷。'),
+  C('b1', '中華民國憲法中規定「人民之權利義務」的是哪一章？', ['第二章', '第一章', '第五章', '第十章'], '憲法第二章（第 7～24 條）列出人民的各項權利與義務。'),
+  T('b1', '憲法一旦制定就永遠不能修改。', false, '憲法可以依照嚴格的程序修改，臺灣自 1991 年起就曾多次修憲，以符合時代需要。'),
+  C('b1', '透過修憲，下列哪一項規定被寫進憲法？', ['總統、副總統由人民直接選舉', '恢復戒嚴', '取消人民的選舉權', '禁止宗教信仰'], '1994 年修憲規定總統由人民直接選舉，1996 年首度實施。'),
+  C('b1', '憲法增修條文規定國家應保障原住民族的什麼？', ['地位、政治參與及教育文化等權益', '只能住在山上', '不能參加選舉', '必須改說華語'], '憲法增修條文規定，國家應依民族意願，保障原住民族的地位及政治參與，並扶助其教育文化、經濟、醫療等發展。'),
+  C('b1', '憲法保障人民的權利，主要是用來防止什麼？', ['國家權力被濫用、侵害人民', '人民太自由', '外國人來觀光', '物價上漲'], '憲法限制政府權力，讓人民的基本權利不被國家任意侵害。'),
+  T('b1', '人民的權利寫在憲法裡，代表政府有責任保障這些權利。', true, '憲法明文保障的權利，政府必須尊重並採取措施保護，不能任意剝奪。'),
+  C('b1', '我國現行的憲法是在哪一年開始施行的？', ['1947 年', '1912 年', '1987 年', '2000 年'], '中華民國憲法於 1946 年制定，1947 年 12 月 25 日開始施行，這天後來稱為行憲紀念日。'),
+  // ===== b2 平等權 =====
+  C('b2', '憲法規定人民「無分男女、宗教、種族、階級、黨派，在法律上一律平等」，這是哪一種權利？', ['平等權', '自由權', '參政權', '受益權'], '這是憲法第 7 條規定的平等權：每個人在法律之前都應受到同等對待。'),
+  C('b2', '下列哪一個情況違反了平等權？', ['公司規定女性員工結婚就必須離職', '公車上設置博愛座', '為視障者設置導盲磚', '考試時讓每個人寫同一份試卷'], '因為性別、婚姻而給予不利的對待，沒有正當理由，是性別歧視，違反平等權。'),
+  C('b2', '為了保障身心障礙者的工作權，法律規定一定規模以上的機關、企業要怎麼做？', ['依比例僱用身心障礙者', '不能僱用身心障礙者', '只能僱用年輕人', '只能僱用男性'], '《身心障礙者權益保障法》規定「定額進用」：達到一定員工人數的公私機構，要僱用一定比例的身心障礙者。'),
+  T('b2', '為了照顧弱勢而給予合理的特別待遇，例如身障專用停車位，並不違反平等權。', true, '平等不是「一模一樣」，而是讓每個人都有實質的公平機會；合理的差別待遇是為了達到真正的平等。'),
+  C('b2', '公共建築設置無障礙坡道和電梯，主要是為了什麼？', ['讓行動不便的人也能平等使用公共設施', '讓建築比較漂亮', '增加工程費用', '只給工作人員使用'], '無障礙設施讓輪椅使用者、長輩和推嬰兒車的人都能方便進出，是落實平等權的做法。'),
+  C('b2', '參加國家考試時，下列哪一種規定最符合平等權？', ['不論性別、宗教、黨派，都依同樣標準評分', '某黨派的考生加分', '男性考生優先錄取', '信仰某宗教的考生不能報名'], '國家考試應以同一標準公平選才，不能因為身分背景而有差別對待。'),
+  T('b2', '平等權的意思是，每個人得到的東西都必須一模一樣。', false, '平等權重視「實質平等」：相同的情況相同對待、不同的情況依合理理由差別對待，並不是每個人都拿一樣多。'),
+  C('b2', '下列哪一句話帶有歧視，違反平等的精神？', ['「他是原住民，一定不會讀書。」', '「大家排隊依序進場。」', '「請讓座給孕婦。」', '「每個人都有發言的機會。」'], '用族群身分斷定一個人的能力，是刻板印象和歧視，違反平等的精神。'),
+  C('b2', '學校為聽障學生提供手語翻譯，這是在落實哪一種權利？', ['平等權與受教育的權利', '服兵役的義務', '納稅的義務', '罷免權'], '提供手語翻譯，讓聽障學生和其他人一樣能學習，是保障平等權與受教育權的具體做法。'),
+  C('b2', '「黨派」平等是指什麼？', ['不論支持哪一個政黨，在法律上都受同樣保障', '只有執政黨的人能當官', '不能加入政黨', '每個人都必須加入政黨'], '不論支持哪一個政黨，或是不支持任何政黨，在法律上都應受到同樣的保障與對待。'),
+  // ===== b3 自由權與它的界線 =====
+  C('b3', '下列哪一項屬於憲法保障的自由權？', ['自由選擇居住的地方', '依法納稅', '服兵役', '接受國民教育'], '居住及遷徙自由是自由權的一種；納稅、服兵役、受國民教育則是義務。'),
+  C('b3', '警察不能沒有法律依據就隨便抓人、關人，這是在保障哪一種自由？', ['人身自由', '宗教自由', '通訊自由', '集會自由'], '憲法第 8 條保障人身自由：非經法定程序，不得逮捕、拘禁、審問、處罰。'),
+  C('b3', '別人的信件、私訊不能被任意偷看，這是在保障哪一種自由？', ['秘密通訊自由', '居住自由', '宗教自由', '遷徙自由'], '憲法第 12 條保障秘密通訊自由，未經合法程序，任何人都不能任意拆看或監聽他人的通訊。'),
+  C('b3', '下列哪一種行為，已經超出言論自由的界線？', ['在網路上散布不實謠言，毀損別人名譽', '在網路上說某部電影很無聊', '向政府提出改善建議', '寫文章批評政策'], '言論自由保障表達意見和評論，但散布不實內容、損害他人名譽，就侵犯了別人的權利，可能違法。'),
+  T('b3', '自由權沒有任何限制，想做什麼都可以。', false, '自由以不侵害他人為界線；憲法第 23 條也規定，為了防止妨礙他人自由、維持社會秩序或增進公共利益，可以用法律限制自由。'),
+  C('b3', '依照憲法，政府如果要限制人民的自由，必須符合哪一個條件？', ['要有法律依據，而且只能在必要的範圍內', '總統說了就算', '隨時都可以限制', '只要有人抱怨就能限制'], '限制人民自由必須以法律規定，且不能超過必要的程度，這就是「法律保留」和「比例原則」。'),
+  C('b3', '依法申請、和平進行的遊行活動，是在行使哪一種自由？', ['集會自由', '通訊自由', '宗教自由', '居住自由'], '集會遊行自由讓人民可以聚集起來公開表達訴求，但要和平進行並遵守相關法律規定。'),
+  C('b3', '一個人可以信仰任何宗教，也可以不信仰宗教，這是什麼自由？', ['宗教信仰自由', '集會自由', '居住自由', '通訊自由'], '憲法第 13 條保障宗教信仰自由，國家不能強迫人民信仰或不信仰某種宗教。'),
+  C('b3', '深夜在公寓大聲唱歌吵到鄰居睡覺，這說明了自由的什麼特性？', ['自由不能妨害他人的權利', '自由完全沒有限制', '只有白天才有自由', '唱歌一定違法'], '每個人的自由都有界線，不能因為自己的自由，影響別人休息、安寧的權利。'),
+  T('b3', '在網路上表達「我覺得這家店的餐點太鹹了」，屬於言論自由保障的範圍。', true, '對商品或服務提出真實的個人感受與評價，是言論自由；但若捏造事實或惡意辱罵，就可能違法。'),
+  // ===== b4 參政權 =====
+  C('b4', '下列哪一組權利都屬於參政權？', ['選舉、罷免、創制、複決', '納稅、服兵役、受教育', '言論、宗教、集會', '請願、訴願、訴訟'], '憲法第 17 條規定人民有選舉、罷免、創制、複決四權，加上應考試、服公職，都是參政權。'),
+  C('b4', '依照憲法規定，年滿幾歲才有選舉權？', ['20 歲', '18 歲', '16 歲', '25 歲'], '憲法第 130 條規定年滿 20 歲有選舉權；2022 年曾舉行將門檻降為 18 歲的修憲複決，但沒有通過。'),
+  C('b4', '依照公民投票法，年滿幾歲就可以參加公民投票？', ['18 歲', '20 歲', '16 歲', '23 歲'], '公民投票法規定，年滿 18 歲的國民就有公民投票權。'),
+  T('b4', '一位 19 歲的年輕人，可以參加公民投票，但還不能參加總統選舉投票。', true, '公民投票權 18 歲、選舉權 20 歲，所以 19 歲可以投公投，不能投總統選舉。'),
+  C('b4', '居民覺得選出的議員嚴重失職，依法發起投票把他解職，這是在行使哪一種權利？', ['罷免', '創制', '複決', '請願'], '罷免是人民依法投票，讓不適任的民選公職人員提前去職。'),
+  C('b4', '人民直接提出法律或重大政策的構想，交付投票決定，這比較接近哪一種權利？', ['創制', '罷免', '訴願', '服兵役'], '創制是人民自己提出法律或政策原則；複決則是人民對已有的法律或政策投票決定要不要接受。'),
+  C('b4', '參加國家考試、成為公務人員為大家服務，屬於哪一種權利？', ['應考試、服公職的權利（參政權）', '平等權', '受益權', '自由權'], '應考試、服公職讓人民透過考試進入政府服務，是參與國家事務的一種方式，屬於參政權。'),
+  C('b4', '下列哪一個職位，是由人民選舉產生的？', ['縣市長', '法官', '公立學校老師', '警察局長'], '縣市長由居民直接選出；法官、老師、警察大多透過考試或甄選任用。'),
+  T('b4', '參政權只能透過投票行使，參加考試當公務員不算參政。', false, '參政權除了選舉、罷免、創制、複決，還包括應考試、服公職。'),
+  C('b4', '民意代表的主要工作是什麼？', ['反映民意、監督政府、審議法律和預算', '在法院審判案件', '在學校教書', '管理醫院'], '立法委員、縣市議員等民意代表代替人民發聲，監督政府施政，並審議法律、預算。'),
+  // ===== b5 受益權 =====
+  C('b5', '權益受到政府機關不當處分時，人民可以向上級機關提出什麼來救濟？', ['訴願', '罷免', '服兵役', '納稅'], '訴願是人民不服行政機關的處分時，向上級機關請求撤銷或變更的救濟方式。'),
+  C('b5', '和別人發生糾紛、無法私下解決時，人民可以向法院提出什麼？', ['訴訟', '請願', '罷免', '創制'], '訴訟是請法院依法審判，判斷誰有理、誰該負責。'),
+  C('b5', '人民向政府表達希望改善某件事的意見，例如請求增設公園，這屬於什麼？', ['請願', '訴訟', '罷免', '服兵役'], '請願是人民對國家政策或公共利益，向政府機關表達希望與請求。'),
+  C('b5', '請願、訴願、訴訟，屬於哪一種權利？', ['受益權', '參政權', '平等權', '自由權'], '這些權利讓人民能「請求國家提供保障」，屬於受益權。'),
+  T('b5', '受教育、工作、生存，都是人民可以要求國家保障的權利。', true, '憲法保障人民的生存權、工作權、受教育權，國家應採取措施讓人民享有這些權利。'),
+  C('b5', '政府提供低收入戶生活補助，主要是在保障人民的什麼權利？', ['生存權', '集會自由', '罷免權', '秘密通訊自由'], '社會救助讓經濟困難的人維持基本生活，是保障生存權的做法。'),
+  C('b5', '「受益權」的特色是什麼？', ['人民可以積極要求國家提供服務或保障', '人民不能向國家要求任何事', '只有官員能享有', '和法律無關'], '受益權是人民請求國家「做些什麼」來保障自己，例如提供教育、救濟、審判。'),
+  T('b5', '人民對法院的判決不服，就只能接受，沒有任何救濟的方法。', false, '對第一審判決不服，可以依法上訴，請上級法院重新審理。'),
+  // ===== b6 人民的三大義務 =====
+  C('b6', '憲法規定人民有哪三項義務？', ['納稅、服兵役、受國民教育', '投票、納稅、工作', '服兵役、旅遊、讀書', '納稅、運動、參加社團'], '憲法第 19、20、21 條分別規定人民有納稅、服兵役、受國民教育的義務。'),
+  C('b6', '人民為什麼要納稅？', ['政府需要經費提供公共建設和服務', '讓人民變窮', '讓官員自由花用', '沒有原因'], '道路、學校、醫院、國防、治安都需要經費，稅收是政府最主要的財源。'),
+  C('b6', '買東西時店家依法開立統一發票，和哪一項義務最有關？', ['納稅', '服兵役', '受國民教育', '投票'], '統一發票記錄交易金額，讓營業稅能被正確計算，幫助落實納稅義務。'),
+  C('b6', '目前依法律規定，誰需要服兵役？', ['年滿 18 歲的男性國民', '所有女性', '只有警察', '只有 30 歲以上的人'], '依兵役法，男性國民年滿 18 歲起有服兵役的義務。'),
+  C('b6', '臺灣從 2024 年起，義務役的役期恢復為多久？', ['1 年', '4 個月', '2 年', '3 年'], '政府考量國防需要，自 2024 年起恢復一年制義務役，適用 2005 年以後出生的役男。'),
+  C('b6', '我國國民教育的年齡範圍是幾歲？', ['6 到 15 歲', '3 到 6 歲', '15 到 18 歲', '18 到 22 歲'], '國民教育是國小 6 年加上國中 3 年，學齡大約是 6 到 15 歲。'),
+  T('b6', '受國民教育既是人民的權利，也是人民的義務。', true, '國家必須提供國民教育（權利），學齡兒童也必須接受（義務），家長沒讓孩子入學可能會被處罰。'),
+  T('b6', '十二年國教實施後，讀高中職也變成強迫性的義務教育。', false, '十二年國教的後三年（高中職）以自願入學為原則，不具強迫性；義務教育仍是國中小九年。'),
+  C('b6', '政府用稅收做的事，下列哪一項最合理？', ['興建學校、醫院與道路', '幫官員買私人汽車', '把錢藏起來不用', '只給某一個人使用'], '稅金來自全體人民，應該用在公共建設與公共服務上，讓大家受益。'),
+  C('b6', '如果每個人都逃漏稅，最可能出現什麼後果？', ['政府缺乏經費，公共服務變差', '道路會變得更好', '學校會增加', '物價一定下降'], '政府收入不足，就沒有錢維護道路、辦教育、照顧弱勢，最後全體人民都會受害。'),
+  // ===== c1 主權在民與選舉 =====
+  C('c1', '在民主國家，國家的權力最終來自哪裡？', ['全體人民', '總統一個人', '軍隊', '外國政府'], '「主權在民」：國家權力來自人民，政府只是受人民委託管理公共事務。'),
+  C('c1', '民主國家為什麼要「定期」舉行選舉？', ['讓人民可以定期檢驗、更換執政者', '讓政府可以多放假', '因為選舉很好玩', '讓候選人賺錢'], '定期選舉讓執政者必須對人民負責，表現不好就可能在下次選舉被換掉。'),
+  C('c1', '候選人舉辦政見發表會，主要目的是什麼？', ['讓選民了解他的政策和理念，以便比較選擇', '表演才藝', '販賣商品', '宣布選舉結果'], '政見發表會讓選民比較各候選人的政策，做出理性的投票選擇。'),
+  T('c1', '在民主國家，人民可以透過選舉，和平地更換執政的政黨。', true, '政黨輪替靠選票而不是武力，這正是民主政治和平解決權力爭議的方式。'),
+  C('c1', '投票時採取「秘密投票」，主要是為了什麼？', ['讓選民不受威脅、依自己意願投票', '讓開票比較快', '節省紙張', '讓候選人知道誰投給他'], '秘密投票保護選民不被別人威脅或收買，可以安心依自己的判斷投票。'),
+  C('c1', '下列哪一種行為違反民主選舉的精神？', ['候選人用金錢買票', '選民比較政見後投票', '候選人公開辯論', '選民查詢候選人的經歷'], '買票讓選舉結果被金錢左右，而不是反映真正的民意，而且是違法的。'),
+  C('c1', '政府組成的主要目的是什麼？', ['維護國家安全、社會秩序並保障人民權利', '讓官員擁有特權', '限制人民發言', '只為了收稅'], '政府的存在是為了替人民服務：保障安全、維持秩序、提供公共服務並保障人民權利。'),
+  T('c1', '民主國家的政府權力沒有任何限制，可以做任何事。', false, '民主政府的權力受憲法、法律、選舉、媒體和人民監督等多重限制，不能為所欲為。'),
+  C('c1', '我國的政府可分為哪兩個層級？', ['中央政府與地方政府', '北部政府與南部政府', '大政府與小政府', '城市政府與鄉村政府'], '中央政府處理全國性事務，地方政府（直轄市、縣市、鄉鎮市）處理地方事務。'),
+  // ===== c2 中央政府與五院 =====
+  C('c2', '我國中央政府除了總統，還有哪五個院？', ['行政、立法、司法、考試、監察', '行政、立法、司法、國防、外交', '教育、經濟、司法、考試、監察', '行政、立法、財政、考試、衛生'], '我國採五權分立：行政院、立法院、司法院、考試院、監察院。'),
+  C('c2', '負責制定法律、審查國家預算的是哪一院？', ['立法院', '行政院', '司法院', '監察院'], '立法院由人民選出的立法委員組成，負責制定法律、審議預算。'),
+  C('c2', '負責執行政策、管理全國行政事務的是哪一院？', ['行政院', '立法院', '考試院', '監察院'], '行政院是國家最高行政機關，底下有內政部、教育部、衛生福利部等部會。'),
+  C('c2', '負責審判案件、解釋憲法的是哪一院？', ['司法院', '考試院', '行政院', '立法院'], '司法院掌理審判，並設有憲法法庭負責解釋憲法、審理違憲案件。'),
+  C('c2', '負責舉辦公務人員考試、選拔人才的是哪一院？', ['考試院', '監察院', '司法院', '行政院'], '考試院辦理國家考試，讓政府用公平公開的方式選拔公務人員。'),
+  C('c2', '負責調查、糾正失職官員的是哪一院？', ['監察院', '考試院', '立法院', '司法院'], '監察院可以對失職或違法的公務人員提出彈劾、糾舉，也可以糾正行政機關。'),
+  C('c2', '下列哪一個「不是」我國中央政府的五院之一？', ['國防院', '行政院', '司法院', '考試院'], '國防由行政院底下的國防部負責，並沒有「國防院」。'),
+  C('c2', '教育部、衛生福利部、內政部，都屬於哪一院？', ['行政院', '立法院', '考試院', '司法院'], '這些部會都是行政院的下屬機關，負責執行各領域的政策。'),
+  C('c2', '五院之間「分工合作、互相制衡」，這樣設計的主要目的是什麼？', ['避免權力集中在少數人手上而被濫用', '讓大家都不用負責', '讓政府效率變慢', '讓總統一個人做決定'], '權力分立讓各機關互相監督，避免權力過度集中造成獨裁或濫權。'),
+  T('c2', '總統是國家元首，對外代表中華民國。', true, '總統是國家元首，對外代表國家，對內統率三軍，並負責公布法律等職權。'),
+  // ===== c3 一條法律怎麼誕生 =====
+  C('c3', '法律案要經過哪一個機關通過，才能成為法律？', ['立法院', '行政院', '考試院', '監察院'], '法律必須經立法院通過、總統公布，才算正式的法律。'),
+  C('c3', '立法院通過法律案，要經過幾次宣讀和表決？', ['三讀', '一讀', '五讀', '十讀'], '法律案在立法院要經過一讀、二讀、三讀，三讀通過才完成立法程序。'),
+  C('c3', '法律在立法院三讀通過後，還要經過誰公布才開始施行？', ['總統', '立法院長', '行政院長', '縣市長'], '依憲法規定，立法院通過的法律要送請總統公布，公布後才生效施行。'),
+  O('c3', '一條新法律從提出到施行，依順序排排站！', ['提出法律草案', '立法院討論並三讀通過', '總統公布', '行政機關依法執行'], '草案提出 → 立法院三讀 → 總統公布 → 行政機關執行。'),
+  T('c3', '法律只要在立法院三讀通過，不用總統公布就能施行。', false, '三讀通過後還必須由總統公布，法律才會生效施行。'),
+  C('c3', '除了行政院，下列哪一方也可以向立法院提出法律草案？', ['立法委員', '一般公司老闆', '外國大使', '學校校長'], '行政院、立法委員、司法院、考試院、監察院等都可以依職權提出法律案。'),
+  C('c3', '新增國定假日的規定，要先經過哪一道程序？', ['立法院通過相關法律', '總統直接宣布就好', '各縣市自己決定', '學校投票決定'], '國定假日涉及全國人民的權益，要透過立法院通過法律，再由總統公布施行。'),
+  T('c3', '法律公布後，行政機關要依照法律訂出細節並執行。', true, '行政機關依法律執行，並可依授權訂定施行細則，把法律落實到生活中。'),
+  C('c3', '「依法行政」的意思是什麼？', ['政府做事必須依照法律', '政府想做什麼都可以', '人民不用守法', '法律只約束人民'], '依法行政要求政府的一切作為都要有法律依據，不能任意行事。'),
+  // ===== c4 地方自治 =====
+  C('c4', '臺灣目前有幾個直轄市？', ['6 個', '4 個', '8 個', '22 個'], '臺北市、新北市、桃園市、臺中市、臺南市、高雄市，共 6 個直轄市。'),
+  C('c4', '下列哪一個是直轄市？', ['桃園市', '新竹市', '嘉義市', '基隆市'], '六都是臺北、新北、桃園、臺中、臺南、高雄；新竹市、嘉義市、基隆市是省轄市。'),
+  C('c4', '地方政府分成哪兩種機關？', ['行政機關與立法機關', '司法機關與考試機關', '監察機關與國防機關', '學校與醫院'], '縣市政府是行政機關，縣市議會是立法機關。'),
+  C('c4', '縣市議會的主要工作是什麼？', ['審議地方法規與預算、監督縣市政府', '在法院審判', '負責國防', '辦理國家考試'], '縣市議員由居民選出，負責審議自治條例和預算，並監督縣市政府施政。'),
+  C('c4', '下列哪一項主要是由地方政府負責的事務？', ['垃圾清運與環境衛生', '外交', '國防', '發行貨幣'], '垃圾清運、道路維護、地方衛生、國中小教育等，多由地方政府負責；外交、國防、貨幣屬中央。'),
+  C('c4', '夏天南部地區噴藥消滅病媒蚊、防治登革熱，主要是哪一類地方事務？', ['公共衛生', '外交事務', '國防事務', '司法審判'], '防治傳染病屬公共衛生，由地方衛生局等單位執行。'),
+  C('c4', '縣市長和縣市議員是怎麼產生的？', ['由當地居民選舉產生', '由總統指派', '由考試錄取', '由抽籤決定'], '地方自治的核心，就是由居民自己選出縣市長和議員，處理地方事務。'),
+  T('c4', '「地方自治」是指地方的事務由當地居民選出的政府和議會自己處理。', true, '地方自治讓最了解當地情況的居民，透過選舉產生的政府和議會，自主管理地方事務。'),
+  C('c4', '議員在議會質詢縣長：「颱風造成淹水，排水工程為什麼還沒完成？」議員是在做什麼？', ['監督地方政府施政', '審判案件', '辦理考試', '制定國家法律'], '質詢是民意代表監督行政機關的重要方式，要求政府說明並改善施政。'),
+  C('c4', '「鄉鎮市區公所」屬於哪一類機關？', ['地方的行政機關', '中央的立法機關', '司法機關', '考試機關'], '鄉鎮市區公所是最基層的地方行政機關，處理戶政、社福等與居民密切相關的事務。'),
+  // ===== c5 中央與地方合作、人民表達意見 =====
+  C('c5', '為了減少酒駕，中央和地方政府怎麼分工最合理？', ['中央修法加重處罰，地方警察依法加強取締', '中央和地方都不管', '只靠地方政府自己訂法律', '只靠中央派軍隊'], '中央負責訂定全國一致的法律與政策，地方負責實際執行取締，雙方合作才能有效解決問題。'),
+  C('c5', '政府在推動重大建設前舉辦「公聽會」，主要目的是什麼？', ['聽取民眾和專家的意見', '宣布結果不讓人討論', '販賣門票', '選出新的官員'], '公聽會讓受影響的居民和專家表達意見，讓政策更周延、減少衝突。'),
+  C('c5', '許多縣市設立「1999」專線，主要用途是什麼？', ['讓市民反映問題、查詢市政服務', '報案抓小偷', '火災和救護', '檢舉詐騙'], '1999 是市民服務專線；報案打 110、火災救護打 119、詐騙諮詢打 165。'),
+  C('c5', '在「公共政策網路參與平臺」上，民眾可以做什麼？', ['提出政策建議，並附議、討論', '買賣商品', '玩線上遊戲', '直接決定法律'], '民眾可以在平臺上提出建議；達到一定附議人數，相關機關就要正式回應。'),
+  C('c5', '如果認為政府的政策不當，下列哪一種表達方式最恰當？', ['向民意代表陳情，或依法和平集會遊行', '破壞公共設施', '在網路上散布假消息', '威脅官員'], '民主社會有許多合法管道表達意見，應理性、和平地爭取，不能用暴力或造假。'),
+  T('c5', '政府施政需要人民的支持與監督，才能不斷修正和進步。', true, '人民的意見和監督讓政府知道哪裡做得不好，進而調整政策。'),
+  C('c5', '一項政策要「中央訂規則、地方去執行」，主要原因是什麼？', ['全國需要一致標準，而地方更了解當地情況', '地方政府沒有人', '中央政府沒有錢', '這樣比較好玩'], '中央制定一致的規範，地方依當地情況執行，兩者合作能讓政策更有效率。'),
+  C('c5', '媒體報導政府的錯誤，對民主政治有什麼幫助？', ['讓人民了解真相、監督政府', '讓政府更容易隱瞞', '讓選舉取消', '沒有任何幫助'], '新聞自由讓媒體成為監督政府的重要力量，常被稱為「第四權」。'),
+  T('c5', '人民只能在選舉的時候表達意見，平常沒有任何管道。', false, '除了選舉，人民還可以透過陳情、公聽會、網路平臺、民意代表、合法集會等方式隨時表達意見。'),
+  C('c5', '民眾對政策有意見時，最直接可以找誰替自己在議會發聲？', ['自己選區的民意代表', '法官', '外國大使', '學校老師'], '民意代表的職責就是反映選民意見，並在議會監督政府。'),
+  // ===== c6 政策與人民權益的平衡 =====
+  C('c6', '疫情嚴重時，政府曾禁止餐廳內用、限制群聚，這主要是為了什麼？', ['保護全體人民的健康，降低疫情擴散', '讓餐廳倒閉', '處罰民眾', '增加稅收'], '限制群聚可以減少病毒傳播，是為了維護公共衛生這個重大的公共利益。'),
+  C('c6', '防疫措施讓部分業者收入大減，政府應該怎麼做比較合理？', ['提供紓困補助、協助業者度過難關', '完全不管', '要求業者自己承擔所有損失', '取消所有防疫措施'], '公共利益和個人權益要兼顧：政府採取限制的同時，也應提供補助與協助，減輕受影響者的負擔。'),
+  T('c6', '政府為了公共利益限制人民自由時，限制的程度不應該超過必要的範圍。', true, '這就是「比例原則」：手段要能達到目的、選擇傷害最小的方式，而且利益要大於損害。'),
+  C('c6', '政府為了興建道路徵收私人土地，依法應該怎麼做？', ['給予土地所有人合理的補償', '直接拿走不用補償', '叫地主自己搬走就好', '只補償有錢人'], '憲法保障財產權，因公共利益徵收私人土地時，必須依法給予合理補償。'),
+  C('c6', '當政策影響到自己的權益時，人民可以透過什麼方式爭取？', ['依法申請補助、提出訴願或訴訟', '破壞公物', '散布謠言', '不繳稅抗議'], '依法申請、訴願、訴訟都是合法的救濟管道。'),
+  C('c6', '「比例原則」的意思，下列哪一個描述最接近？', ['政府採取的手段要適當，不能殺雞用牛刀', '政府想怎麼做都可以', '人民要依收入比例繳罰款', '政府要依人口比例分錢'], '比例原則要求政府的手段與目的相稱，用造成最小傷害的方法達成目標。'),
+  T('c6', '一項政策只要對大多數人有利，就完全不需要照顧少數受損的人。', false, '民主政府要兼顧少數人的權益，對受損者應提供補償、救濟或申訴管道。'),
+  C('c6', '疫情期間政府發放振興或紓困措施，主要希望達到什麼效果？', ['協助受影響的民眾與產業、帶動經濟', '讓物價大漲', '取代所有工作', '讓大家不用工作'], '紓困和振興措施的目的，是幫助受衝擊的人與產業度過困難，並刺激消費、恢復經濟。'),
+  // ===== d1 受教育的機會擴大 =====
+  C('d1', '日治時期，日本籍兒童和臺灣籍兒童的初等學校，大多是怎麼安排的？', ['分開就讀不同的學校', '全部讀同一所學校', '臺灣兒童不能上學', '只有臺灣兒童能上學'], '日治時期日本兒童多讀「小學校」，臺灣兒童多讀「公學校」，教育資源並不平等。'),
+  C('d1', '我國在哪一年把國民教育從六年延長為九年？', ['1968 年', '1945 年', '1987 年', '2014 年'], '1968 年起實施九年國民教育，國中也納入國民教育，大幅提升國民的教育程度。'),
+  C('d1', '十二年國民基本教育是在哪一年開始實施的？', ['2014 年', '1968 年', '2000 年', '1996 年'], '2014 年起實施十二年國教，高中職以免試入學為主，並推動適性發展。'),
+  C('d1', '九年國民教育包含哪兩個階段？', ['國小 6 年和國中 3 年', '國小 3 年和國中 6 年', '國中 3 年和高中 6 年', '幼兒園 3 年和國小 6 年'], '九年國教＝國小六年＋國中三年。'),
+  T('d1', '早期社會中，性別、家庭經濟和族群等因素，都可能影響一個人受教育的機會。', true, '過去女孩、家境貧困者或某些族群，常因社會觀念或資源不足而失學，教育機會並不平等。'),
+  C('d1', '教育普及對社會最主要的好處是什麼？', ['提升人民的知識與能力，帶動社會發展', '讓大家都不用工作', '讓物價下降', '讓人口變少'], '人民教育程度提高，能培養更多人才，促進經濟、文化與民主發展。'),
+  C('d1', '十二年國教中的高中職三年，屬於什麼性質？', ['自願入學，不具強迫性', '強迫入學', '只有男生能讀', '只有成績好的人能讀'], '十二年國教的高中職階段以自願入學為原則，並不屬於強迫的義務教育。'),
+  T('d1', '戰後推行國民教育以後，入學率大幅提高，大多數孩子都能上學。', true, '戰後普設國民學校，學齡兒童的入學率快速上升，接近全面就學。'),
+  // ===== d2 學校教育的轉變 =====
+  C('d2', '過去許多學校規定學生的頭髮長度，這種規定被稱為什麼？', ['髮禁', '報禁', '黨禁', '海禁'], '髮禁是早期學校對學生髮型的嚴格規定，解嚴後隨著社會開放而逐漸取消。'),
+  C('d2', '過去臺灣升高中、大學，主要靠什麼方式決定？', ['一次定生死的聯合招生考試（聯考）', '完全看興趣', '抽籤分發', '由老師推薦就好'], '過去的聯考以一次考試成績決定升學，壓力很大；後來改為多元入學。'),
+  C('d2', '大學聯考後來被哪一種制度取代？', ['多元入學', '取消所有入學方式', '抽籤入學', '依身高入學'], '2002 年起大學聯考改為多元入學，包括申請入學、繁星推薦、分科測驗等管道。'),
+  C('d2', '下列哪一種做法，最符合現在教育重視「適性發展」的精神？', ['讓學生依興趣選修課程、參加社團', '所有人只能讀同樣的科目', '只看考試成績', '禁止學生發表意見'], '適性發展是讓每個學生依自己的興趣和能力學習，發揮不同的潛能。'),
+  C('d2', '「實驗教育」是什麼？', ['依法辦理、課程和教學方式較有彈性的教育', '在實驗室上課的科學課', '只考試不上課的教育', '只有國外才有的教育'], '臺灣在 2014 年通過實驗教育相關法律，家長和團體可依法辦理課程與教學更有彈性的教育。'),
+  T('d2', '現在的教育更鼓勵學生表達自己的想法，也重視討論與合作學習。', true, '現代教育從單向講述，轉向引導學生思考、表達、討論與合作。'),
+  T('d2', '學習只能在教室裡進行，戶外和社區都不算學習場所。', false, '博物館、社區、大自然都可以是學習場所，現在的學習場域越來越多元。'),
+  C('d2', '早期學校重視紀律與升學，可能帶來什麼問題？', ['學生的個人興趣與發展受到限制', '學生太自由', '學生考試太少', '學校太多社團'], '過度重視考試與統一規範，可能壓縮學生探索興趣和發展特長的空間。'),
+  C('d2', '學校推動「彈性學習課程」，主要目的是什麼？', ['讓學生依需求和興趣進行多元學習', '讓學生放假', '增加考試次數', '取消所有課程'], '彈性學習課程讓學校和學生有空間發展特色課程、自主學習。'),
+  // ===== d3 家庭型態的改變 =====
+  C('d3', '在傳統農業社會，為什麼常見好幾代住在一起的大家庭？', ['耕作需要很多人手，家族成員一起生活工作', '因為房子太大', '因為法律規定', '因為大家都不想工作'], '農業需要大量勞力，家族成員一起耕作、互相照應，所以常見多代同堂。'),
+  C('d3', '由父母和未婚子女組成的家庭，稱為什麼？', ['小家庭（核心家庭）', '三代同堂家庭', '單人家庭', '隔代教養家庭'], '小家庭又稱核心家庭，由父母與未婚子女組成，是工商業社會常見的家庭型態。'),
+  C('d3', '由祖父母照顧孫子女、父母不住在一起的家庭，稱為什麼？', ['隔代教養家庭', '核心家庭', '夫妻家庭', '單人家庭'], '父母可能因工作在外地等原因，由祖父母負責照顧孫子女，就是隔代教養家庭。'),
+  C('d3', '工商業發展後，小家庭越來越普遍，主要原因是什麼？', ['年輕人到都市工作，離開原本的大家庭', '法律規定只能住三個人', '房子越蓋越大', '大家都搬到鄉下'], '工作機會集中在都市，年輕人離鄉工作、成家，家庭規模就變小了。'),
+  T('d3', '近年來，臺灣一個人獨自居住的「單人家庭」越來越多。', true, '晚婚、不婚、人口高齡化等因素，讓單人家庭的比例逐年增加。'),
+  C('d3', '下列哪一種家庭型態，近年來比例下降最明顯？', ['三代同堂家庭', '單人家庭', '夫妻家庭', '單親家庭'], '隨著都市化和觀念改變，三代同堂家庭的比例持續下降。'),
+  C('d3', '只有夫妻兩人、沒有和子女同住的家庭，稱為什麼？', ['夫妻家庭', '核心家庭', '隔代教養家庭', '單親家庭'], '夫妻家庭包括沒有生育的夫妻，或子女已離家的夫妻。'),
+  T('d3', '家庭型態越來越多元，代表社會越來越能包容不同的生活方式。', true, '不同的家庭型態都可能是幸福的，社會越開放，越能尊重每個人的選擇。'),
+  C('d3', '下列哪一種想法，最能尊重多元的家庭型態？', ['每一種家庭都有它的樣子，都值得尊重', '只有三代同堂才是好家庭', '單親家庭一定比較不好', '沒有孩子的家庭不算家庭'], '家庭的價值在於成員彼此的照顧與關愛，而不在於人數或組成方式。'),
+  // ===== d4 少子化與高齡化 =====
+  C('d4', '「少子化」是指什麼現象？', ['出生的嬰兒越來越少', '小孩越來越矮', '小孩越來越多', '學校越來越多'], '少子化是指生育率下降、每年出生人數越來越少。臺灣的生育率是全世界最低的國家之一。'),
+  C('d4', '少子化最可能直接造成下列哪一種影響？', ['學校招生不足、減班甚至停辦', '教室不夠用', '老年人口減少', '學生越來越多'], '孩子變少，學校招不到學生，部分學校只好減班、合併或停辦。'),
+  C('d4', '「高齡化」是指什麼？', ['65 歲以上人口占總人口的比例越來越高', '大家越來越晚起床', '大樓越蓋越高', '老人越來越年輕'], '醫療進步、壽命延長，加上出生人數減少，讓老年人口比例不斷上升。'),
+  C('d4', '當 65 歲以上人口超過總人口的 20%，稱為什麼社會？', ['超高齡社會', '高齡化社會', '年輕社會', '少子社會'], '老年人口比例超過 7% 是高齡化社會、14% 是高齡社會、20% 是超高齡社會；臺灣在 2025 年進入超高齡社會。'),
+  C('d4', '高齡化社會最需要加強下列哪一項服務？', ['長期照顧與醫療服務', '增建幼兒園', '增加兒童樂園', '減少醫院'], '老年人口增加，需要更多長照、醫療、無障礙環境等支持。'),
+  T('d4', '少子化加上高齡化，未來可能造成工作的人口變少，社會照顧的負擔變重。', true, '工作年齡人口減少、需要照顧的長輩增加，會讓每個工作者的扶養負擔加重。'),
+  C('d4', '政府提供育兒津貼、增設公共托育，主要想改善哪一個問題？', ['少子化', '高齡化', '交通擁擠', '空氣汙染'], '減輕養育孩子的經濟與照顧負擔，希望提高大家的生育意願。'),
+  C('d4', '下列哪一項是造成少子化的可能原因？', ['養育成本高、晚婚或不婚的人增加', '醫院太多', '學校太少', '玩具太便宜'], '教育、居住等養育成本高，加上工作壓力、晚婚不婚，都讓生育率下降。'),
+  T('d4', '高齡化的主要原因之一是醫療進步，人們的平均壽命延長了。', true, '醫療和公共衛生進步，讓人活得更久，老年人口自然增加。'),
+  // ===== d5 家庭價值觀與親子關係 =====
+  C('d5', '「多子多孫多福氣」這種觀念，最常出現在什麼樣的社會？', ['傳統農業社會', '現代資訊社會', '太空時代', '外國城市'], '農業社會需要人力耕作，孩子多代表家中勞動力多，因此有多子多孫多福氣的觀念。'),
+  C('d5', '「子承父業」是什麼意思？', ['子女繼承父母的事業', '父母繼承子女的事業', '子女可以自由選擇工作', '父母退休後去讀書'], '過去常期待子女接手家族的事業，例如家裡開店、務農就由子女繼承。'),
+  C('d5', '現在許多父母對孩子未來職業的態度，比較接近哪一種？', ['尊重孩子的興趣與選擇，給予支持', '一定要孩子繼承家業', '完全不和孩子討論', '由父母決定一切'], '社會觀念改變，父母更重視孩子的興趣與適性發展，親子之間更常溝通討論。'),
+  T('d5', '在現代社會，選擇不結婚或不生小孩，也是個人可以自由決定的事。', true, '婚姻和生育是個人的人生選擇，現代社會越來越尊重不同的選擇。'),
+  C('d5', '家人之間意見不同時，下列哪一種做法最好？', ['彼此傾聽、尊重，好好溝通', '誰大聲就聽誰的', '冷戰不說話', '直接離家出走'], '良好的家庭關係建立在尊重與溝通上，透過理解找出大家都能接受的做法。'),
+  C('d5', '有些年輕人因為工作不穩定，長期依賴父母生活，可能帶來什麼影響？', ['家庭經濟與親子關係面臨壓力', '父母會更輕鬆', '社會變得更年輕', '完全沒有影響'], '成年子女長期依賴父母，可能加重父母負擔，也容易造成家庭衝突。'),
+  C('d5', '和過去相比，現在的親子關係最主要的改變是什麼？', ['更平等、更重視雙向溝通', '更強調絕對服從', '彼此完全不說話', '只由祖父母決定家中事務'], '過去較強調長幼尊卑，現在的親子關係更平等，重視彼此溝通與尊重。'),
+  T('d5', '「晚輩一定要完全照長輩的話做，才叫孝順」是現代最普遍的觀念。', false, '現代社會仍重視孝順，但更強調親子間的尊重與溝通，而不是單方面服從。'),
+  C('d5', '雙薪家庭越來越多，家事分工最合理的方式是什麼？', ['家庭成員依能力和時間共同分擔', '全部交給媽媽', '全部交給孩子', '都不要做'], '家事是全家人的事，大家一起分擔，才公平也才能減輕彼此的壓力。'),
+  // ===== e1 性別平等的觀念 =====
+  C('e1', '「性別平等」最主要的意思是什麼？', ['不論性別，都享有平等的權利、機會與尊重', '男女要做一模一樣的事', '女生比男生重要', '男生比女生重要'], '性別平等不是要大家都一樣，而是不因性別而受到不公平的限制或對待。'),
+  C('e1', '下列哪一句話帶有「性別刻板印象」？', ['「男生不可以哭，要堅強。」', '「每個人都可以表達情緒。」', '「想學什麼都可以試試看。」', '「大家輪流打掃。」'], '認為某種性別「應該」或「不能」做什麼，就是性別刻板印象。'),
+  C('e1', '班上選拔籃球隊，最符合性別平等的做法是什麼？', ['不論性別，依興趣和能力公平選拔', '只讓男生參加', '只讓女生參加', '用抽籤決定性別'], '機會應該對所有人開放，依興趣和能力選拔，而不是用性別設限。'),
+  T('e1', '「女生比較不適合讀理工科系」是一種性別刻板印象。', true, '學習能力和興趣因人而異，與性別無關；這種說法會限制女性的發展。'),
+  T('e1', '性別平等只是女生的事，和男生沒有關係。', false, '性別刻板印象也會限制男生，例如「男生不能哭」「男生不能當護理師」；性別平等是每個人的事。'),
+  C('e1', '性別平等為什麼被稱為「普世價值」？', ['它是世界各地普遍認同、值得追求的價值', '它只適用於某一個國家', '它只是一種流行', '它只存在於法律條文'], '尊重每個人、不因性別而歧視，是國際社會普遍認同的人權價值。'),
+  C('e1', '看到同學因為喜歡粉紅色而被嘲笑，最恰當的做法是什麼？', ['提醒大家尊重每個人的喜好', '跟著一起嘲笑', '假裝沒看到', '要求他改喜歡別的顏色'], '喜好不分性別，嘲笑別人的特質是不尊重的行為，應該勇敢提醒。'),
+  C('e1', '下列哪一個廣告內容最符合性別平等的觀念？', ['爸爸和媽媽一起下廚、照顧孩子', '只有媽媽在洗衣服', '只有爸爸能開車', '女生只能當秘書'], '呈現家務、工作不分性別的畫面，能打破刻板印象。'),
+  // ===== e2 法律與制度的保障 =====
+  C('e2', '臺灣在 2004 年通過哪一部法律，推動學校的性別平等教育？', ['性別平等教育法', '公民投票法', '兵役法', '道路交通管理處罰條例'], '《性別平等教育法》保障學生不因性別、性別特質等受到差別待遇，並推動校園性別平等教育。'),
+  C('e2', '保障職場性別平等、禁止雇主性別歧視的法律是哪一部？', ['性別平等工作法', '性別平等教育法', '身心障礙者權益保障法', '公民投票法'], '《性別平等工作法》禁止在招募、升遷、薪資等方面性別歧視，並保障育嬰假等權益。'),
+  C('e2', '依照法律，誰可以申請育嬰留職停薪？', ['符合條件的父親或母親都可以', '只有母親', '只有父親', '只有祖父母'], '育嬰留職停薪是父母雙方都可以申請的權利，鼓勵共同育兒。'),
+  T('e2', '近年來申請育嬰留職停薪的父親人數逐漸增加。', true, '隨著觀念改變和津貼提高，越來越多父親願意請育嬰假，參與照顧孩子。'),
+  C('e2', '公共場所設置「親子廁所」，主要的好處是什麼？', ['讓任何性別的家長都能方便帶孩子如廁', '讓廁所比較豪華', '只讓媽媽使用', '增加清潔人員'], '親子廁所設有大人和小孩的設備，讓爸爸、媽媽或其他照顧者都能方便帶孩子使用。'),
+  C('e2', '「性別友善廁所」的設計目的是什麼？', ['讓不同性別、需要協助的人都能安心使用', '只給男生使用', '只給女生使用', '讓廁所變少'], '性別友善廁所讓所有人都能使用，也方便需要家人陪同的長輩或身障者。'),
+  C('e2', '在職場遇到因為懷孕而被要求離職，可以怎麼做？', ['向勞工主管機關申訴，依法爭取權益', '只能接受', '在網路上罵公司', '偷偷搬走公司的東西'], '因懷孕而被迫離職違反性別平等工作法，可以向勞工局等主管機關申訴。'),
+  T('e2', '雇主可以因為求職者的性別，直接拒絕錄用，不需要任何理由。', false, '除非工作性質確實只能由特定性別擔任，否則因性別拒絕錄用就是性別歧視，違法。'),
+  // ===== e3 女性受教育的歷史 =====
+  C('e3', '清代的私塾、書院主要培養讀書人參加什麼考試？', ['科舉', '大學學測', '國家公務員考試', '駕照考試'], '清代教育以科舉為目標，科舉只開放給男性，因此女性很少有機會正式求學。'),
+  C('e3', '清代女性的教育多以什麼為主？', ['家務、女紅等生活技能', '四書五經應考科舉', '外語和科學', '法律和政治'], '受傳統觀念影響，女性多在家中學習烹飪、刺繡、縫紉等家務技能。'),
+  C('e3', '1884 年，哪一位傳教士在淡水創辦了女學堂？', ['馬偕', '馬雅各', '孫中山', '陳澄波'], '加拿大長老教會傳教士馬偕在淡水創辦女學堂，是臺灣最早的女子學校之一。'),
+  C('e3', '日治時期，臺灣出現了哪一種專門給女生就讀的中等學校？', ['高等女學校', '私塾', '書院', '科舉考場'], '日治時期設立多所高等女學校，例如臺北第三高等女學校、臺南第二高等女學校。'),
+  T('e3', '日治時期臺灣女性已經可以接受初等教育，甚至有機會升學。', true, '新式教育制度建立後，女性可以就讀公學校、高等女學校，少數人還能升學到專門學校或出國留學。'),
+  C('e3', '現在臺灣的大學生中，男女人數大致是什麼情況？', ['男女人數相當', '幾乎都是男生', '幾乎都是女生', '女生不能讀大學'], '教育普及後，女性接受高等教育的人數大幅增加，現在大學生的男女人數已相當接近。'),
+  O('e3', '女性受教育機會的演進，依時間排排站！', ['清代以科舉教育為主，女性很少求學', '馬偕在淡水創辦女學堂', '日治時期設立高等女學校', '現在男女接受高等教育的人數相當'], '清代 → 1884 年淡水女學堂 → 日治時期高等女學校 → 現在男女受教育機會趨於平等。'),
+  C('e3', '女性受教育的機會增加，對社會最重要的影響是什麼？', ['女性能發揮專長，參與各行各業與公共事務', '女性都不用工作', '男性不能再讀書', '家庭數量變少'], '教育讓女性擁有知識和能力，能投入職場、參與政治，提升社會整體的發展。'),
+  // ===== e4 生活中的性別平等 =====
+  C('e4', '下列哪一種家務分配最符合性別平等？', ['依每個人的時間和能力輪流分擔', '女生負責所有家事', '男生只負責修電器', '小孩都不用做'], '家務不應該依性別分配，而是依照每個人的時間和能力共同分擔。'),
+  C('e4', '下列哪一個職業選擇的想法最恰當？', ['依自己的興趣和能力選擇', '男生只能當工程師', '女生只能當老師', '要看父母的性別'], '職業沒有性別之分，男性護理師、女性機師都很常見。'),
+  T('e4', '男生當護理師、女生當消防員，都是很正常的職業選擇。', true, '只要有興趣和能力，任何人都可以選擇自己想要的工作。'),
+  C('e4', '在學校遇到性騷擾，最恰當的處理方式是什麼？', ['告訴信任的師長，向學校提出申訴', '自己忍耐不說', '在網路上公開對方的個資', '以暴力報復'], '學校設有性別平等教育委員會處理申訴，應尋求師長協助，依程序保護自己。'),
+  C('e4', '下列哪一個玩笑話，可能讓人感到不舒服，屬於性別歧視？', ['「你是女生，數學不好很正常。」', '「這題我們一起想想看。」', '「你的想法很有創意。」', '「謝謝你幫忙。」'], '用性別斷定一個人的能力，是貶低他人的歧視言論，即使是玩笑也可能傷人。'),
+  T('e4', '運動社團應該限定性別，才能維持公平。', false, '社團和活動應對所有人開放；比賽分組另有規則，但參與的機會不應因性別而被剝奪。'),
+  C('e4', '學校的球場時間，男生總是占用大部分場地，比較好的改善方式是什麼？', ['制定輪流使用的規則，讓大家都有機會', '只讓男生使用', '只讓女生使用', '把球場關閉'], '公共資源應公平分配，訂定輪流規則能讓每個人都有使用的機會。'),
+  C('e4', '下列哪一句話，最能表達對性別平等的支持？', ['「每個人都能做自己喜歡的事。」', '「男主外、女主內。」', '「女生要文靜才可愛。」', '「男生不能怕。」'], '尊重每個人的選擇與特質，不用性別框住別人，就是支持性別平等。'),
+  // ===== f1 原住民族的信仰與祭典 =====
+  C('f1', '臺灣原住民族的傳統信仰，大多崇拜什麼？', ['祖靈與自然界的神靈', '媽祖', '王爺', '佛祖'], '原住民族相信萬物有靈，敬畏祖先的靈魂與山川、天地等自然神靈。'),
+  C('f1', '目前政府正式認定的臺灣原住民族有幾族？', ['16 族', '9 族', '10 族', '20 族'], '目前政府認定的原住民族共 16 族，最近一次增加的是 2014 年正名的拉阿魯哇族和卡那卡那富族。'),
+  C('f1', '阿美族一年中最重要、慶祝豐收的祭典是什麼？', ['豐年祭', '飛魚祭', '打耳祭', '巴斯達隘'], '阿美族豐年祭通常在夏季舉行，感謝祖靈帶來豐收，族人一起歌舞。'),
+  C('f1', '住在蘭嶼的達悟族，每年迎接飛魚季節的祭典是什麼？', ['飛魚祭', '豐年祭', '矮靈祭', '打耳祭'], '飛魚是達悟族重要的食物，每年春天舉行飛魚祭，祈求漁獲豐收。'),
+  C('f1', '布農族祈求狩獵豐收、訓練男孩射箭的祭典是什麼？', ['打耳祭', '豐年祭', '飛魚祭', '媽祖遶境'], '打耳祭（射耳祭）是布農族重要的祭典，男孩練習射擊獸耳，祈求狩獵豐收。'),
+  C('f1', '賽夏族每兩年舉行一次、紀念矮人的祭典叫做什麼？', ['巴斯達隘（矮靈祭）', '飛魚祭', '豐年祭', '燒王船'], '賽夏族的巴斯達隘是為了紀念傳說中的矮人，並提醒族人反省。'),
+  T('f1', '原住民族的祭典和農耕、狩獵、捕魚等生活方式有密切關係。', true, '祭典常配合作物收成、狩獵或漁撈季節，反映了各族與自然共存的生活方式。'),
+  C('f1', '原住民族的祭典，對族人有什麼重要意義？', ['凝聚族人、傳承文化與祖先的智慧', '只是表演給觀光客看', '為了賺錢', '沒有特別意義'], '祭典讓族人團聚，傳承語言、歌舞與傳統知識，也加強族群認同。'),
+  T('f1', '參加原住民族祭典時，外人可以隨意闖入禁地拍照，不必遵守禁忌。', false, '祭典有許多神聖的儀式和禁忌，參與時應尊重族人的規定，不能任意干擾。'),
+  // ===== f2 漢人的信仰 =====
+  C('f2', '漢人移民渡海來臺時，常祈求哪一位神明保佑航海平安？', ['媽祖', '土地公', '關公', '月下老人'], '早期移民要渡過危險的臺灣海峽，因此特別崇拜海上守護神媽祖。'),
+  C('f2', '王爺信仰中有「燒王船」的儀式，主要是為了什麼？', ['送走瘟疫、祈求地方平安', '慶祝新年', '紀念戰爭', '祈求考試順利'], '王爺被認為能驅除瘟疫，燒王船象徵把瘟疫送走，保佑地方平安。'),
+  C('f2', '屏東東港每三年舉行一次、以燒王船聞名的祭典是什麼？', ['東港迎王平安祭典', '豐年祭', '大甲媽祖遶境', '元宵燈會'], '東港迎王平安祭典規模盛大，最後的燒王船儀式吸引許多人參觀。'),
+  C('f2', '每年農曆三月，臺中大甲有一項跨越多個縣市的盛大宗教活動，是什麼？', ['大甲媽祖遶境進香', '東港燒王船', '豐年祭', '飛魚祭'], '大甲媽祖遶境進香為期約九天八夜，行經多個縣市，是臺灣重要的宗教盛事。'),
+  C('f2', '在早期的漢人聚落，廟宇除了拜拜，還有什麼功能？', ['居民聚會、商議公共事務的地方', '銀行', '醫院手術室', '軍事要塞'], '廟宇常是聚落的中心，居民在這裡聚會、調解糾紛、舉辦活動。'),
+  C('f2', '漢人移民帶來的宗教，除了民間信仰，還包括哪些？', ['佛教和道教', '伊斯蘭教', '原住民族的祖靈信仰', '只有基督教'], '漢人移民帶來佛教、道教，以及媽祖、王爺、土地公等民間信仰。'),
+  T('f2', '土地公在漢人信仰中，常被視為守護地方、保佑農作的神明。', true, '土地公（福德正神）守護一方土地，農民特別祈求祂保佑五穀豐收。'),
+  C('f2', '鹿港龍山寺是哪一種宗教的寺廟？', ['佛教', '天主教', '伊斯蘭教', '原住民族祖靈信仰'], '龍山寺主祀觀世音菩薩，屬於佛教寺廟，也是重要的古蹟。'),
+  // ===== f3 西方宗教的傳入 =====
+  C('f3', '17 世紀在臺灣南部傳播基督新教的是哪一國人？', ['荷蘭人', '日本人', '英國人', '美國人'], '1624 年荷蘭人在臺南一帶建立據點，並向原住民傳播基督新教。'),
+  C('f3', '17 世紀在臺灣北部傳播天主教的是哪一國人？', ['西班牙人', '荷蘭人', '日本人', '葡萄牙人'], '1626 年西班牙人占領基隆、淡水一帶，傳教士在北部傳播天主教。'),
+  C('f3', '19 世紀臺灣開港通商後，在北部傳教、創辦學校和醫館的長老教會傳教士是誰？', ['馬偕', '馬雅各', '孫中山', '鄭成功'], '馬偕在淡水傳教，創辦了牛津學堂、女學堂和醫館，對北臺灣影響很大。'),
+  C('f3', '19 世紀在臺灣南部行醫傳教的長老教會傳教士是誰？', ['馬雅各', '馬偕', '陳澄波', '林獻堂'], '馬雅各是英國長老教會傳教士，在臺南、高雄一帶行醫傳教。'),
+  T('f3', '傳教士來臺除了傳教，也引進了西方的醫療和教育。', true, '傳教士創辦醫院、學校，帶來西式醫療與新式教育，對臺灣社會影響深遠。'),
+  C('f3', '屏東的萬金聖母聖殿，是臺灣歷史悠久的哪一種宗教建築？', ['天主教堂', '佛教寺廟', '清真寺', '媽祖廟'], '萬金聖母聖殿建於 19 世紀，是臺灣現存歷史最悠久的天主教堂之一。'),
+  C('f3', '西方宗教傳入時，有些教會把在地文化融入建築或儀式，主要目的是什麼？', ['拉近和當地居民的距離，讓人更容易接受', '嚇走當地居民', '把教堂改成廟', '收取門票'], '融入在地文化能減少隔閡，讓居民更願意認識新的宗教。'),
+  O('f3', '西方宗教傳入臺灣的經過，依時間排排站！', ['荷蘭人在南部傳播基督新教', '西班牙人在北部傳播天主教', '開港後馬偕在淡水傳教'], '荷蘭人 1624 年來臺 → 西班牙人 1626 年來臺 → 19 世紀開港後馬偕傳教（1872 年抵淡水）。'),
+  // ===== f4 伊斯蘭教與新住民 =====
+  C('f4', '伊斯蘭教徒進行集體禮拜的場所叫做什麼？', ['清真寺', '教堂', '廟宇', '祖靈屋'], '清真寺是伊斯蘭教的禮拜場所，臺北清真寺是臺灣代表性的清真寺。'),
+  C('f4', '近年臺灣信仰伊斯蘭教的人數增加，主要和哪一群人有關？', ['來自印尼等國的移工和新住民', '荷蘭人', '日本人', '原住民族'], '印尼是穆斯林人口最多的國家，許多來臺工作或生活的印尼人信仰伊斯蘭教。'),
+  C('f4', '餐廳提供「清真（Halal）」認證的食物，是為了尊重誰的飲食習慣？', ['伊斯蘭教徒', '佛教徒', '天主教徒', '道教徒'], '伊斯蘭教規定不能吃豬肉、不能喝酒等，清真認證確保食物符合教規。'),
+  T('f4', '戰後隨中華民國政府來臺的人當中，也有一些伊斯蘭教徒。', true, '1949 年前後，有一些穆斯林隨政府來臺，後來在臺灣興建清真寺。'),
+  C('f4', '伊斯蘭教徒每年有一個月在白天禁食，這個月叫什麼？', ['齋戒月', '鬼月', '國慶月', '畢業月'], '齋戒月期間，穆斯林從日出到日落不吃不喝，體會飢餓、培養自律。'),
+  C('f4', '學校有信仰伊斯蘭教的同學，下列哪一種做法最能表現尊重？', ['了解並尊重他的飲食與禮拜習慣', '故意請他吃豬肉', '嘲笑他的服裝', '要求他改變信仰'], '尊重別人的宗教習慣，是多元社會中和睦相處的基礎。'),
+  T('f4', '新住民帶來的文化和信仰，讓臺灣社會更加多元。', true, '新住民帶來不同的語言、飲食、節慶與信仰，豐富了臺灣的文化。'),
+  // ===== f5 宗教自由與互相尊重 =====
+  C('f5', '憲法保障人民有宗教信仰的自由，這代表什麼？', ['可以自由選擇信仰任何宗教，或不信仰宗教', '一定要信仰某一個宗教', '政府可以決定人民信什麼', '只能信仰傳統宗教'], '宗教信仰自由保障每個人自主決定信仰，國家不能強迫或禁止。'),
+  C('f5', '信仰基督教的同學參觀廟宇時，不想拿香拜拜，最恰當的做法是什麼？', ['尊重自己的信仰，安靜參觀即可，不必勉強', '一定要跟著拿香', '大聲說廟宇不好', '偷偷離開不告訴老師'], '尊重是雙向的：不勉強別人違反自己的信仰，同時也要尊重參觀場所的規矩。'),
+  C('f5', '不同宗教相遇時，可能出現什麼情況？', ['可能互相交流學習，也可能產生誤解或衝突', '一定會打起來', '一定完全不受影響', '一定會變成同一個宗教'], '宗教交流可以互相學習，但若缺乏理解也可能產生衝突，所以需要尊重與溝通。'),
+  T('f5', '參觀別人的宗教場所時，應該遵守該場所的規矩，例如脫鞋或保持安靜。', true, '各宗教場所有不同的規範，遵守規矩是對信仰者的基本尊重。'),
+  T('f5', '如果自己不信某個宗教，就可以任意嘲笑它的儀式。', false, '不論是否認同，都應尊重他人的信仰，嘲笑是不尊重的行為。'),
+  C('f5', '臺灣常見不同宗教的人一起參與社區活動，這反映了臺灣社會的什麼特色？', ['宗教多元、彼此包容', '只有一種宗教', '宗教被禁止', '大家都不信宗教'], '臺灣有民間信仰、佛教、道教、基督教、天主教、伊斯蘭教等，大多能和平共處。'),
+  C('f5', '要減少不同宗教之間的誤會，最好的方法是什麼？', ['多認識、多了解彼此的信仰與文化', '互相不往來', '只聽一方說法', '禁止所有宗教活動'], '了解越多，誤會越少；透過交流與對話，能促進不同信仰的人彼此尊重。'),
+  C('f5', '政府能不能規定所有人都必須參加某一個宗教的儀式？', ['不能，這違反宗教信仰自由', '可以，政府有權力', '只有在節日時可以', '只要多數人同意就可以'], '強迫參加宗教儀式侵犯宗教信仰自由，即使多數人同意也不行。'),
+  C('e1', '「性別刻板印象」最可能造成什麼影響？', ['限制一個人依興趣和能力發展', '讓每個人更自由', '讓大家更了解彼此', '讓社會更公平'], '刻板印象會讓人因為性別被期待或被限制，例如女生不敢選理工、男生不敢學舞蹈，埋沒了潛能。'),
+  T('e1', '性別平等的社會中，每個人都可以依自己的興趣選擇穿著和才藝。', true, '穿著、才藝、興趣都是個人的選擇，不應因性別而被要求或被限制。'),
+  C('e2', '學校如果發生性別相關的事件，主要由哪一個組織負責調查處理？', ['性別平等教育委員會', '家長會', '班聯會', '福利社'], '依性別平等教育法，學校要設立性別平等教育委員會，處理申訴並推動性平教育。'),
+  C('e2', '同樣的工作、同樣的表現，雇主卻因為性別給予不同的薪水，這違反了什麼原則？', ['同工同酬', '比例原則', '依法行政', '主權在民'], '同工同酬是指從事相同工作、表現相同的人，應獲得相同的報酬，不因性別而有差別。'),
+  C('e3', '臺南第二高等女學校就是今天哪一所學校的前身？', ['臺南女中', '臺南一中', '成功大學', '臺南大學'], '日治時期的臺南州立臺南第二高等女學校，戰後改制為今日的國立臺南女子高級中學。'),
+  T('e3', '清代的科舉考試，女性也可以報名參加。', false, '清代科舉只開放給男性，女性無法參加，這也是女性受教育機會少的原因之一。'),
+  C('e4', '下列哪一種說法，是在「尊重」而不是「限制」別人的選擇？', ['「你想學什麼，都可以試試看。」', '「女生學武術太奇怪了。」', '「男生跳芭蕾很丟臉。」', '「這不是你這種性別該做的事。」'], '鼓勵別人依興趣嘗試，就是尊重；用性別去否定別人的選擇，就是限制。'),
+  T('e4', '性別平等的家庭中，照顧孩子是爸爸和媽媽共同的責任。', true, '養育孩子需要雙方共同參與，爸爸和媽媽都是照顧者。'),
+  C('f1', '原住民族的「歲時祭儀」大多配合什麼時間舉行？', ['農作、狩獵、捕魚等生活的季節', '學校的考試日期', '百貨公司週年慶', '總統選舉日'], '祭儀依生活節奏而定，例如播種、收穫、狩獵、捕魚的季節，表達對祖靈與自然的感謝。'),
+  T('f1', '拉阿魯哇族和卡那卡那富族在 2014 年獲得政府正名，成為臺灣原住民族的第 15、16 族。', true, '2014 年兩族獲得正名，臺灣原住民族增加為 16 族。'),
+  C('f2', '下列哪一位神明，在早期的漢人社會中被視為驅除瘟疫的神？', ['王爺', '媽祖', '月下老人', '文昌帝君'], '早期醫療不發達，瘟疫常奪走許多人命，人們便祭拜王爺祈求驅除瘟疫。'),
+  C('f2', '文昌帝君在漢人信仰中，主要被祈求保佑什麼？', ['讀書和考試', '航海平安', '驅除瘟疫', '五穀豐收'], '文昌帝君被認為掌管文運、功名，所以考生常去祭拜祈求考試順利。'),
+  C('f3', '馬偕在臺灣除了傳教，還因為什麼醫療服務而出名？', ['幫民眾拔牙治病', '開設眼鏡行', '研發疫苗', '經營藥廠'], '當時牙痛很普遍，馬偕據說為上萬人拔過牙，也提供各種醫療照顧。'),
+  T('f3', '荷蘭人統治臺灣時期，曾用羅馬拼音記錄原住民族的語言。', true, '荷蘭傳教士用羅馬字拼寫西拉雅語，留下的文書後來被稱為「新港文書」。'),
+  C('f4', '伊斯蘭教徒通常每天要做幾次禮拜？', ['五次', '一次', '十次', '一個月一次'], '穆斯林每天在固定時間進行五次禮拜，因此有些機場、車站設有祈禱室。'),
+  C('f4', '臺北車站等公共場所設置「祈禱室」，主要是為了什麼？', ['讓有禮拜需求的旅客方便進行宗教活動', '讓旅客睡覺', '販賣商品', '辦理行李託運'], '設置祈禱室是尊重伊斯蘭教徒等旅客的宗教需求，也是友善多元的表現。'),
+  C('f5', '社區有人舉辦宗教活動，聲音很大影響鄰居，最理想的解決方式是什麼？', ['彼此溝通，在尊重信仰與生活安寧之間找到平衡', '直接禁止所有宗教活動', '用更大的聲音報復', '不理會鄰居的抱怨'], '宗教自由也要顧及他人的權益，雙方溝通協調，才能兼顧信仰與生活品質。'),
+  T('f5', '一個人可以選擇不信仰任何宗教，這也受到宗教自由的保障。', true, '宗教自由包括信仰的自由，也包括不信仰的自由。'),
+  C('d1', '早期許多家庭較少讓女孩讀書，主要是受到什麼觀念影響？', ['重男輕女的傳統觀念', '女孩不喜歡讀書', '法律禁止女孩上學', '學校太遠'], '傳統社會重男輕女，認為女孩長大要嫁人，讀書不重要，所以女孩的受教機會較少。'),
+  C('d2', '下列哪一種做法，最能幫助學生了解自己的興趣和專長？', ['參加多元的社團和探索課程', '只寫考卷', '不參加任何活動', '只聽別人的安排'], '多嘗試不同的活動和課程，才能找到自己的興趣與適合發展的方向。'),
+  C('d4', '少子化讓勞動人口減少，下列哪一種做法可以減輕這個問題？', ['善用科技提高生產力、鼓勵長者與女性就業', '關閉所有學校', '禁止外國人來臺', '減少醫療服務'], '提升生產效率、讓更多人能投入職場，都能減輕勞動力不足的問題。'),
+  C('b5', '國家設立法院、提供審判，讓人民的糾紛能依法解決，這是在保障人民的哪一種權利？', ['訴訟權（受益權）', '罷免權', '服兵役的義務', '納稅的義務'], '訴訟權讓人民可以請求法院依法審判，是受益權的一種。'),
+  C('c6', '政府要在社區旁興建垃圾焚化爐，最理想的做法是什麼？', ['事先說明、舉辦公聽會，並提出回饋與補償', '直接動工不告訴居民', '只告訴部分居民', '用強制手段驅離抗議者'], '公共建設可能影響居民生活，事先溝通、聽取意見並提出回饋，才能兼顧公共利益與居民權益。'),
+  T('c6', '政府限制人民權利時，必須有法律的依據。', true, '依憲法第 23 條，限制人民的自由權利必須以法律規定，這叫法律保留原則。')
+];
+
+// 每一題加上編號和所屬的觀念、主題
+const SEC = Object.fromEntries(SECS.map(s => [s.id, s]));
+BANK.forEach((q, i) => { q.id = 'q' + i; q.sec = SEC[q.s]; q.ti = q.sec.t; q.topic = TOPICS[q.ti]; });
+TOPICS.forEach((tp, i) => { tp.secs = SECS.filter(s => s.t === i); tp.qs = BANK.filter(q => q.ti === i); });
+const MISSION_LEN = 20, CARD_NEED = 3;   // 每次 20 題；同一個觀念答對 3 題就收集到那張知識卡
+const PETS = [['🐕', '小狗'], ['🐈', '小貓'], ['🐇', '兔子'], ['🐿️', '松鼠'], ['🐧', '企鵝'], ['🦔', '刺蝟'], ['🐢', '烏龜'], ['🦆', '鴨子']];
+const TITLES = [[1, '見習探險家'], [4, '小小公民'], [7, '社會偵探'], [11, '臺灣通'], [16, '時光大師']];
+const lvOf = xp => Math.floor(Math.sqrt(xp / 150)) + 1;
+const xpFor = lv => (lv - 1) * (lv - 1) * 150;
+const titleOf = lv => TITLES.filter(([n]) => lv >= n).pop()[1];
+
+// ---------- 存檔（只存在這台裝置） ----------
+const KEY = 'g6-social-quest-v3';
+let S = { xp:0, topics:{}, secOk:{}, seen:{}, pet:'🐕' };
+try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e){}
+const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e){} };
+const cardGot = sec => (S.secOk[sec.id] || 0) >= CARD_NEED;
+const cardCount = tp => tp.secs.filter(cardGot).length;
+
+function renderMe(){
+  const lv = lvOf(S.xp), a = xpFor(lv), b = xpFor(lv + 1);
+  $('me').innerHTML = `<span class="lv">Lv.${lv}</span><span class="ttl">${titleOf(lv)}</span><span class="xpbar" title="${S.xp} XP"><i style="width:${(S.xp - a) / (b - a) * 100}%"></i></span>`;
+}
+
+// ---------- 上方的小夥伴：答題時慢慢散步，答對時跑來跑去、轉圈、跳、作揖，答錯時垂頭冒汗 ----------
+let SCENE = null;
+function startScene(cv, color, logicalH = 36){
+  // 高度固定（畫面上約 72px），寬度跟著版面，像素一格放大 2 倍
+  cv.height = logicalH; cv.width = Math.max(160, Math.round((cv.getBoundingClientRect().width || 480) / 2));
+  const g = cv.getContext('2d'), W = cv.width, H = cv.height, GY = H - 6;
+  const st = { t:0, x:W * .3, dir:1, mode:'walk', mt:0, act:'run', parts:[], alive:true, pause:0 };
+  const stars = Array.from({ length:26 }, (_, i) => ({ x:(i * 73) % W, y:(i * 29) % (GY - 14), k:i % 3 }));
+  const rgb = [1, 3, 5].map(k => parseInt(color.slice(k, k + 2), 16)).join(',');
+  const pop = (x, y, c, n = 6, sh = 'dot') => { for (let i = 0; i < n; i++) st.parts.push({ x, y, vx:(Math.random() - .5) * 2.4, vy:-Math.random() * 2 - .6, t:40 + Math.random() * 20, c, sh }); };
+  function heart(x, y, c){ fP(g, x, y, c, 2, 2); fP(g, x + 3, y, c, 2, 2); fP(g, x - 1, y + 1, c, 7, 2); fP(g, x, y + 3, c, 5, 1); fP(g, x + 1, y + 4, c, 3, 1); fP(g, x + 2, y + 5, c, 1, 1); }
+  function frame(){
+    if (!st.alive || !document.body.contains(cv)) return;
+    st.t++;
+    g.imageSmoothingEnabled = false;
+    fP(g, 0, 0, '#141a3a', W, H);
+    for (let y = 0; y < GY; y += 4) fP(g, 0, y, `rgba(${rgb},${.04 + y / H * .22})`, W, 4);
+    stars.forEach(s => { if ((st.t + s.x) % 70 < 58) fP(g, s.x, s.y, s.k ? '#ffffff' : '#ffcf3f', 1, 1); });
+    fP(g, 0, GY, '#2a3370', W, H - GY); fP(g, 0, GY, color, W, 1);
+    for (let x = 0; x < W; x += 12) fP(g, x + 3, GY + 4, '#343e86', 5, 1);
+    // 行為
+    const S2 = 24;   // 小夥伴畫多大
+    let h = 0, rot = 0, sx = 1, sy = 1, speed = 0;
+    if (st.mode === 'walk'){
+      if (st.pause > 0){ st.pause--; h = Math.floor(st.t / 30) % 2 ? -1 : 0; }
+      else { speed = .45; h = Math.floor(st.t / 10) % 2 ? -1 : 0; if (Math.random() < .004) st.pause = 60 + Math.random() * 80; if (Math.random() < .003) st.dir *= -1; }
+    } else if (st.mode === 'happy'){
+      st.mt--; const k = st.mt;
+      if (st.act === 'run'){ speed = 2.6; h = -Math.abs(Math.sin(k / 3)) * 4; if (k % 6 === 0) pop(st.x + S2 / 2 - st.dir * 10, GY - 2, '#a9a6d6', 2); }
+      else if (st.act === 'jump'){ h = -Math.abs(Math.sin(k / 9)) * 10; if (k % 18 === 0) pop(st.x + S2 / 2, GY - 24 + h, '#ffcf3f', 5); }
+      else if (st.act === 'spin'){ rot = (k / 14) * Math.PI * 2; h = -Math.abs(Math.sin(k / 7)) * 6; }
+      else if (st.act === 'bow'){   // 作揖：彎腰、起身，冒出愛心
+        const b = Math.max(0, Math.sin(k / 8)); rot = b * .55 * st.dir; sy = 1 - b * .1; if (k % 24 === 0) st.parts.push({ x:st.x + S2 / 2, y:GY - S2, vx:(Math.random() - .5), vy:-.8, t:50, c:'#ff5fa2', sh:'heart' });
+      }
+      if (st.mt <= 0) st.mode = 'walk';
+    } else if (st.mode === 'sad'){
+      st.mt--; sy = .92; sx = 1.06; h = 1; if (st.mt > 50) rot = Math.sin(st.mt / 2) * .08;
+      if (st.mt % 30 === 15) st.parts.push({ x:st.x + S2 / 2 + 8 * st.dir, y:GY - S2 - 2, vx:0, vy:.3, t:26, c:'#3ce0ff', sh:'drop' });
+      if (st.mt <= 0) st.mode = 'walk';
+    }
+    st.x += speed * st.dir;
+    if (st.x < 4){ st.x = 4; st.dir = 1; } if (st.x > W - S2 - 4){ st.x = W - S2 - 4; st.dir = -1; }
+    // 影子和小夥伴（emoji 動物大多面向左，往右走時翻過來）
+    fP(g, Math.round(st.x + 6), GY - 1, 'rgba(0,0,0,.4)', S2 - 12, 2);
+    g.save(); g.translate(Math.round(st.x + S2 / 2), Math.round(GY - S2 / 2 + h)); g.rotate(rot); g.scale(sx * (st.dir > 0 ? -1 : 1), sy);
+    g.drawImage(sprite(S.pet, 24), 0, 0, 24, 24, -S2 / 2, -S2 / 2, S2, S2); g.restore();
+    // 粒子
+    st.parts = st.parts.filter(p => {
+      p.x += p.vx; p.y += p.vy; if (p.sh === 'dot') p.vy += .08; p.t--;
+      if (p.sh === 'heart') heart(Math.round(p.x), Math.round(p.y), p.c);
+      else if (p.sh === 'drop'){ fP(g, Math.round(p.x), Math.round(p.y), p.c, 2, 3); fP(g, Math.round(p.x), Math.round(p.y) - 1, p.c, 1, 1); }
+      else fP(g, Math.round(p.x), Math.round(p.y), p.c, 2, 2);
+      return p.t > 0;
+    });
+    requestAnimationFrame(frame);
+  }
+  st.happy = () => { st.mode = 'happy'; st.act = ['run', 'jump', 'spin', 'bow'][Math.floor(Math.random() * 4)]; st.mt = st.act === 'run' ? 120 : 112; st.pause = 0; pop(st.x + 14, GY - 30, '#ffcf3f', 10); pop(st.x + 14, GY - 30, '#3ccf6e', 6); };
+  st.sad = () => { st.mode = 'sad'; st.mt = 90; };
+  requestAnimationFrame(frame);
+  return st;
+}
+
+// ---------- 任務大廳 ----------
+function starsHtml(n){ return `<span class="stars">${[0, 1, 2].map(i => i < n ? '★' : '<span class="off">★</span>').join('')}</span>`; }
+function home(){
+  Q = null; if (SCENE) SCENE.alive = false;
+  $('view').innerHTML = `<div class="wrap" style="gap:14px">
+    <section class="hero"><canvas id="heroCv" width="480" height="64" aria-hidden="true"></canvas>
+      <div class="txt"><h2>社會任務</h2><p>臺灣的民主、權利、政府、社會與文化｜題庫 ${BANK.length} 題</p></div></section>
+    <div class="pets" role="radiogroup" aria-label="選擇你的小夥伴"><span class="lab">我的小夥伴</span>${PETS.map(([e, n]) => `<button class="pet ${S.pet === e ? 'on' : ''}" data-pet="${e}" role="radio" aria-checked="${S.pet === e}" title="${n}"><canvas data-ic="${e}" width="20" height="20"></canvas><span>${n}</span></button>`).join('')}</div>
+    <button class="mixbtn" data-mix>🎲 綜合挑戰：六大主題平均出題，共 ${MISSION_LEN} 題</button>
+    <div class="units">${TOPICS.map((tp, i) => { const st = S.topics[i] || {}; return `
+      <button class="unit" data-unit="${i}" style="--c:${tp.c}">
+        <div class="top"><canvas data-ic="${tp.icon}" width="20" height="20" aria-hidden="true"></canvas>
+          <div><div class="no">TOPIC ${i + 1}．${tp.qs.length} 題</div><h3>${esc(tp.name)}</h3></div></div>
+        <p class="sub">${esc(tp.sub)}</p>
+        <div class="meta">${starsHtml(st.stars || 0)}<span>🃏 ${cardCount(tp)}/${tp.secs.length}</span>${st.best ? `<span>最高 ${st.best} 分</span>` : ''}<span class="go">GO ▶</span></div>
+      </button>`; }).join('')}</div>
+    <p class="tipline">每次 ${MISSION_LEN} 題，平均出自主題裡的每個觀念｜答錯會附上詳解｜卡關就按 💡 看提示動畫｜同一個觀念答對 ${CARD_NEED} 題就收集到知識卡</p>
+  </div>`;
+  $('view').querySelectorAll('[data-ic]').forEach(c => c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0));
+  SCENE = startScene($('heroCv'), '#3ce0ff', 40);
+  renderMe();
+}
+
+// ---------- 出題：平均分配到每一個觀念（每個觀念先出比較少出過的題目） ----------
+function pickEven(secs, n){
+  const pools = shuffle(secs.slice()).map(sec => shuffle(BANK.filter(q => q.s === sec.id)).sort((a, b) => (S.seen[a.id] || 0) - (S.seen[b.id] || 0)));
+  const out = [];
+  while (out.length < n && pools.some(p => p.length)) for (const p of pools){ if (out.length >= n) break; const q = p.shift(); if (q) out.push(q); }
+  return shuffle(out);
+}
+let Q = null;
+function startMission(ti){
+  const mix = ti === 'mix';
+  let list;
+  if (mix){   // 綜合挑戰：每個主題平分題數，主題裡再平均到每個觀念
+    const n = TOPICS.length, per = Math.floor(MISSION_LEN / n), extra = shuffle(TOPICS.map((_, i) => i)).slice(0, MISSION_LEN - per * n);
+    list = shuffle(TOPICS.flatMap((tp, i) => pickEven(tp.secs, per + (extra.includes(i) ? 1 : 0))));
+  } else list = pickEven(TOPICS[ti].secs, MISSION_LEN);
+  const tp = mix ? { c:'var(--gold)', hex:'#ffcf3f', name:'綜合挑戰' } : TOPICS[ti];
+  Q = { tp, ti, mix, list, i:0, res:[], combo:0, maxCombo:0, score:0, xp:0, newCards:[], lv0:lvOf(S.xp), t0:Date.now() };
+  if (lbReady()) lbFetch().catch(() => {});   // 先讀排行榜，答完時就不用等
+  SFX.blip();
+  if (SCENE) SCENE.alive = false;
+  $('view').innerHTML = `<div class="wrap" style="--c:${tp.c}">
+    <div class="hud"><span class="uname">${mix ? '🎲 綜合挑戰' : `${esc(tp.name)}`}</span><div class="dots" id="dots"></div><span class="combo" id="combo"></span><span class="score" id="score">0</span></div>
+    <div class="scene" id="scene"><canvas id="sceneCv" width="480" height="48" aria-hidden="true"></canvas></div>
+    <div id="qbox"></div>
+  </div>`;
+  SCENE = startScene($('sceneCv'), tp.hex);
+  question();
+}
+function hud(){
+  $('dots').innerHTML = Q.list.map((_, k) => `<i class="${Q.res[k] || (k === Q.i ? 'now' : '')}"></i>`).join('');
+  $('combo').textContent = Q.combo >= 2 ? `COMBO x${Q.combo}` : '';
+  $('score').textContent = `第 ${Q.i + 1}/${Q.list.length} 題｜${Q.score} PTS`;
+}
+const KIND = { choice:'CHOICE', tf:'TRUE / FALSE', order:'TIMELINE' };
+function question(){
+  const q = Q.list[Q.i]; Q.hinted = false; Q.done = false; Q.picked = [];
+  hud();
+  let body = '';
+  if (q.type === 'choice'){
+    Q.map = shuffle(q.opts.map((t, k) => k));
+    body = `<div class="opts">${Q.map.map((k, n) => `<button class="opt" data-a="${k}"><span class="k">${'ABCD'[n]}</span><span>${esc(q.opts[k])}</span></button>`).join('')}</div>`;
+  } else if (q.type === 'tf'){
+    body = `<div class="opts tf"><button class="opt" data-a="1">⭕ 對</button><button class="opt" data-a="0">❌ 錯</button></div>`;
+  } else {
+    Q.pool = shuffle(q.items.map((t, k) => k));
+    if (Q.pool.every((k, n) => k === n)) Q.pool.reverse();
+    body = `<div class="order-line" id="line"></div><div class="order-pool" id="pool"></div>
+      <div class="row"><button class="btn alt" id="undo" disabled>↩ 退一步</button></div>`;
+  }
+  $('qbox').innerHTML = `<div style="display:flex;flex-direction:column;gap:12px">
+    <div class="bubble" style="--c:${q.topic.c}"><span class="tag">${Q.mix ? `${esc(q.topic.name)}｜` : ''}${esc(q.sec.title)}</span><span class="kind">${KIND[q.type]}</span>
+      <p class="q">${esc(q.q).replace(/「不是」|「不」/g, m => `<em>${m}</em>`)}</p></div>
+    ${body}
+    <div class="row" id="acts"><button class="btn hint" id="hintBtn">💡 看提示動畫</button><span style="color:var(--dim);font-size:13px">看提示也能拿分，只是 XP 少一點</span></div>
+    <div id="fb"></div>
+  </div>`;
+  if (q.type === 'order') drawOrder();
+  $('hintBtn').onclick = () => openHint(q);
+}
+function drawOrder(){
+  const q = Q.list[Q.i];
+  $('pool').innerHTML = Q.pool.filter(k => !Q.picked.includes(k)).map(k => `<button class="chipq" data-o="${k}">${esc(q.items[k])}</button>`).join('');
+  $('line').innerHTML = Q.picked.length ? Q.picked.map((k, n) => `<span class="chipq" data-p="${n}"><span class="n">${n + 1}</span>${esc(q.items[k])}</span>`).join('') : '<span class="ph">依序點下面的卡片，從最早的開始排在這裡 ⬇</span>';
+  $('undo').disabled = !Q.picked.length || Q.done;
+}
+function answer(ok){
+  const q = Q.list[Q.i]; Q.done = true;
+  Q.res[Q.i] = ok ? 'ok' : 'no';
+  S.seen[q.id] = (S.seen[q.id] || 0) + 1; S.answered = (S.answered || 0) + 1;
+  let newCard = false;
+  if (ok){
+    Q.combo++; Q.maxCombo = Math.max(Q.maxCombo, Q.combo);
+    const gain = (Q.hinted ? 60 : 100) + Math.min(5, Q.combo - 1) * 20;
+    Q.score += gain; Q.xp += gain;
+    const had = cardGot(q.sec); S.secOk[q.s] = (S.secOk[q.s] || 0) + 1;
+    if (!had && cardGot(q.sec)){ newCard = true; Q.newCards.push(q.sec); }
+    Q.combo >= 3 ? SFX.combo() : SFX.ok();
+    if (SCENE) SCENE.happy();
+    floatText(`+${gain}${Q.combo >= 2 ? ' COMBO' : ''}`);
+  } else {
+    Q.combo = 0; SFX.no();
+    if (SCENE) SCENE.sad();
+  }
+  save(); hud();
+  const right = q.type === 'choice' ? q.opts[0] : q.type === 'tf' ? (q.a ? '⭕ 對' : '❌ 錯') : q.items.map((t, n) => `${n + 1}. ${t}`).join('　');
+  $('acts').innerHTML = `<button class="btn" id="next">${Q.i + 1 < Q.list.length ? '下一題 ▶' : '看結果 🏁'}</button><button class="btn hint" id="hintBtn2">💡 看這個觀念的動畫</button>`;
+  $('fb').innerHTML = ok
+    ? `<div class="fb"><div class="h">✅ 答對了！${newCard ? ' <span class="newcard">NEW CARD！收集到知識卡</span>' : ''}</div><div class="x">📝 ${esc(q.exp)}</div></div>`
+    : `<div class="fb bad"><div class="h">❌ 差一點！正確答案：${esc(right)}</div>
+        <div class="x"><span class="lab">詳解</span>${esc(q.exp)}</div>
+        <div class="ref">💡 相關觀念：<b>${esc(q.sec.title)}</b>——${esc(q.sec.key)}</div></div>`;
+  $('next').onclick = () => { Q.i++; Q.i < Q.list.length ? question() : result(); };
+  $('hintBtn2').onclick = () => openHint(q);
+  setTimeout(() => { const b = $('next'); if (b) b.focus(); }, 30);
+}
+function floatText(t){
+  const sc = $('scene'); if (!sc) return;
+  const f = document.createElement('div'); f.className = 'float'; f.textContent = t; f.style.right = '12px'; f.style.top = '4px';
+  sc.appendChild(f); setTimeout(() => f.remove(), 1200);
+}
+function result(){
+  const n = Q.list.length, ok = Q.res.filter(r => r === 'ok').length, rate = ok / n, secs = Math.round((Date.now() - Q.t0) / 100) / 10;
+  const stars = rate >= .9 ? 3 : rate >= .7 ? 2 : rate >= .4 ? 1 : 0;
+  const rank = rate === 1 ? 'S' : rate >= .85 ? 'A' : rate >= .7 ? 'B' : 'C';
+  const bonus = Q.maxCombo >= 10 ? 200 : Q.maxCombo >= 5 ? 100 : 0;
+  S.xp += Q.xp + bonus;
+  if (!Q.mix){ const st = S.topics[Q.ti] = S.topics[Q.ti] || {}; st.stars = Math.max(st.stars || 0, stars); st.best = Math.max(st.best || 0, Q.score + bonus); st.played = (st.played || 0) + 1; }
+  save();
+  const lv = lvOf(S.xp), up = lv > Q.lv0;
+  const weak = [...new Set(Q.list.filter((q, k) => Q.res[k] === 'no').map(q => q.sec))];
+  SFX.win(); if (SCENE) SCENE.happy();
+  $('qbox').innerHTML = `<div class="result">
+    <div style="color:var(--dim);font-weight:700">任務完成！</div>
+    <div class="rank">${rank}</div>
+    ${starsHtml(stars)}
+    <div class="sum"><span>答對 <b>${ok}/${n}</b></span><span>用時 <b>${secs} 秒</b></span><span>最高 COMBO <b>${Q.maxCombo}</b></span><span>獲得 <b>${Q.xp + bonus} XP</b></span>${bonus ? `<span>🔥 COMBO 獎勵 <b>+${bonus}</b></span>` : ''}</div>
+    ${up ? `<div class="lvup">LEVEL UP! Lv.${lv}「${titleOf(lv)}」</div>` : ''}
+    ${Q.newCards.length ? `<div>🃏 新收集的知識卡 ${Q.newCards.length} 張</div><div class="gotcards">${Q.newCards.map(s => `<span class="chipq">${esc(s.title)}</span>`).join('')}</div>` : ''}
+    ${weak.length ? `<div class="review"><b>📖 建議再複習的觀念</b>${weak.map(s => `<div>・<b style="color:var(--text)">${esc(s.title)}</b>：${esc(s.key)}</div>`).join('')}</div>` : '<div class="review"><b>🎉 全部答對！</b></div>'}
+    <div class="row"><button class="btn" id="again">🔁 再挑戰 ${MISSION_LEN} 題</button><button class="btn alt" id="toHome">🏠 回任務大廳</button></div>
+  </div>`;
+  $('dots').innerHTML = Q.res.map(r => `<i class="${r}"></i>`).join('');
+  $('again').onclick = () => startMission(Q.ti);
+  $('toHome').onclick = home;
+  renderMe();
+  // 看看能不能上排行榜
+  const cands = { score:Q.score + bonus, total:S.answered || 0, time:ok === n && n === MISSION_LEN ? secs : null };
+  const since = Q.t0;
+  setTimeout(() => lbCheck(cands, since), 1200);
+}
+
+// ---------- 提示動畫：這個觀念的重點，一格一格出現，旁白一個字一個字跑出來 ----------
+let HINT = null;
+function openHint(q){
+  if (Q && !Q.done) Q.hinted = true;
+  SFX.page();
+  const sec = q.sec;
+  $('modal').innerHTML = `<div class="hintbox" role="dialog" aria-label="提示動畫">
+    <div class="head"><span>💡 ${esc(sec.title)}</span><span class="px" id="hpg"></span></div>
+    <canvas id="hintCv" width="320" height="150"></canvas>
+    <div class="cap" id="hcap" aria-live="polite"></div>
+    <div class="row"><button class="btn alt" id="hprev">◀ 上一格</button><button class="btn alt" id="hreplay">↻ 重播</button><button class="btn" id="hnext">下一格 ▶</button></div>
+  </div>`;
+  $('modal').hidden = false;
+  HINT = { sec, tp:q.topic, k:0, t:0, alive:true };
+  const go = k => { HINT.k = Math.max(0, Math.min(sec.hint.length - 1, k)); HINT.t = 0; SFX.page(); };
+  $('hprev').onclick = () => go(HINT.k - 1);
+  $('hreplay').onclick = () => go(0);
+  $('hnext').onclick = () => HINT.k < sec.hint.length - 1 ? go(HINT.k + 1) : closeModal();
+  hintLoop();
+}
+function hintLoop(){
+  const H = HINT; if (!H || !H.alive || $('modal').hidden) return;
+  const cv = $('hintCv'); if (!cv) return;
+  const g = cv.getContext('2d'), W = cv.width, Hh = cv.height, [ic, cap] = H.sec.hint[H.k];
+  H.t++;
+  g.imageSmoothingEnabled = false;
+  fP(g, 0, 0, '#0e1330', W, Hh);
+  for (let x = 0; x < W; x += 20) fP(g, x, 0, '#121842', 10, Hh);
+  fP(g, 0, Hh - 26, '#2a3370', W, 26); fP(g, 0, Hh - 26, H.tp.hex, W, 2);
+  const toks = ic.split(' ').filter(Boolean), n = toks.length, gap = Math.min(64, (W - 60) / Math.max(1, n));
+  toks.forEach((tk, i) => {
+    const appear = H.t - i * 12; if (appear < 0) return;
+    const s = appear < 10 ? .4 + appear / 10 * .8 : 1 + Math.max(0, .2 - (appear - 10) / 25), bob = Math.sin((H.t + i * 20) / 14) * 3;
+    const cx = W / 2 + 12 + (i - (n - 1) / 2) * gap, cy = Hh / 2 - 6 + bob;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    if (tk === '➡️'){ g.fillStyle = '#ffcf3f'; g.font = 'bold 22px sans-serif'; g.fillText('▶', cx + Math.round((H.t / 4) % 8) - 4, cy); return; }
+    if (/^[\d\/A-Za-z]+$/.test(tk)){ g.fillStyle = '#f4f1ff'; g.font = `bold ${tk.length > 2 ? 14 : 18}px "Press Start 2P", monospace`; g.fillText(tk, cx, cy); return; }
+    const sz = Math.round(42 * Math.min(1.2, s));
+    fP(g, Math.round(cx - 16), Hh - 30, 'rgba(0,0,0,.35)', 32, 4);
+    g.drawImage(sprite(tk, 24), 0, 0, 24, 24, Math.round(cx - sz / 2), Math.round(cy - sz / 2), sz, sz);
+  });
+  // 小夥伴在角落點頭
+  g.drawImage(sprite(S.pet, 24), 0, 0, 24, 24, 6, Hh - 52 + Math.round(Math.abs(Math.sin(H.t / 8)) * -4), 30, 30);
+  const shown = Math.min(cap.length, Math.max(0, Math.floor((H.t - 10) / 2)));
+  const capEl = $('hcap'); if (capEl && capEl.dataset.n !== shown + '-' + H.k){ capEl.dataset.n = shown + '-' + H.k; capEl.textContent = cap.slice(0, shown) + (shown < cap.length ? '▌' : ''); if (shown && shown % 3 === 0 && shown < cap.length) beep(600 + (shown % 5) * 40, .02, 'square', .02); }
+  $('hpg').textContent = `${H.k + 1} / ${H.sec.hint.length}`;
+  $('hprev').disabled = H.k === 0;
+  $('hnext').textContent = H.k < H.sec.hint.length - 1 ? '下一格 ▶' : '我懂了 ✔';
+  requestAnimationFrame(hintLoop);
+}
+function closeModal(){ $('modal').hidden = true; if (HINT) HINT.alive = false; }
+
+// ---------- 知識卡圖鑑（每一個觀念一張） ----------
+function dex(){
+  Q = null; if (SCENE) SCENE.alive = false;
+  const total = SECS.length, got = SECS.filter(cardGot).length;
+  $('view').innerHTML = `<div class="wrap dex">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">📚 知識卡圖鑑 <span style="font-family:var(--px);font-size:12px;color:var(--gold)">${got}/${total}</span></h2><button class="btn alt" id="back">◀ 回任務大廳</button></div>
+    <p class="tipline" style="text-align:left">每一張卡是一個重要觀念。同一個觀念答對 ${CARD_NEED} 題就能收集。</p>
+    ${TOPICS.map((tp, i) => `<section style="--c:${tp.c}"><h3>TOPIC ${i + 1}．${esc(tp.name)}（${cardCount(tp)}/${tp.secs.length}）</h3>
+      <div class="cards">${tp.secs.map(s => cardGot(s) ? `<div class="card"><canvas data-ic="${s.hint[0][0].split(' ')[0]}" width="20" height="20"></canvas><div><b>${esc(s.title)}</b>${esc(s.key)}</div></div>`
+        : `<div class="card lock"><canvas data-ic="${s.hint[0][0].split(' ')[0]}" width="20" height="20"></canvas><div><b>${esc(s.title)}</b>還差 ${CARD_NEED - (S.secOk[s.id] || 0)} 題答對就能收集</div></div>`).join('')}</div></section>`).join('')}
+  </div>`;
+  $('view').querySelectorAll('[data-ic]').forEach(c => c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0));
+  $('back').onclick = home;
+  SFX.page();
+}
+function help(){
+  $('modal').innerHTML = `<div class="help" role="dialog"><h3>❓ 怎麼玩</h3><ul>
+    <li>在任務大廳選一隻小夥伴，再選一個主題出發；也可以玩「綜合挑戰」。</li>
+    <li>每次 ${MISSION_LEN} 題，平均出自主題裡的每個觀念；有選擇題、是非題、時間排排站。</li>
+    <li>答對拿 XP，小夥伴會開心地跑來跑去；連續答對有 COMBO，分數越加越多。</li>
+    <li>答錯時會附上詳解和相關觀念的重點。</li>
+    <li>不會的時候按「💡 看提示動畫」，用小動畫說明這個觀念（XP 會少一點，但一樣能拿）。</li>
+    <li>同一個觀念答對 ${CARD_NEED} 題，就收集到那張知識卡，到「📚 知識卡」可以複習。</li>
+    <li>🏆 排行榜有三種：單次最高分、累積答題數、20 題全對最快。一輪結束後如果擠進前 ${LB_SHOW} 名，就能輸入名字登上排行榜，和朋友比賽！</li></ul>
+    <h3>給家長和老師</h3><p style="margin:0 0 10px">題庫共 ${BANK.length} 題，依臺灣史實與公民常識自行撰寫，程度約為國中，涵蓋民主發展、憲法與權利義務、政府運作、社會變遷、性別平等、宗教與多元族群六大主題，每題都附詳解。紀錄只存在這台裝置的瀏覽器裡。</p>
+    <div class="row"><button class="btn" id="hclose">我知道了</button><button class="btn alt" id="reset">清除紀錄</button></div></div>`;
+  $('modal').hidden = false;
+  $('hclose').onclick = closeModal;
+  $('reset').onclick = e => { const b = e.currentTarget; if (!b.dataset.sure){ b.dataset.sure = 1; b.textContent = '⚠️ 再按一次確定清除'; return; } S = { xp:0, topics:{}, secOk:{}, seen:{}, pet:S.pet, pid:S.pid, name:S.name, uid:S.uid, fbRefresh:S.fbRefresh }; save(); closeModal(); home(); };
+}
+
+// ---------- 排行榜：存在 Firebase（Firestore），朋友之間一起比 ----------
+// 三種排行：單次最高分、累積答題數、20 題全對的最快時間；每個人在每種排行只留最好的一筆
+// Firebase 設定（Firestore 存排行、匿名登入讓每台裝置有自己的身分，只能改自己的成績）
+const FB = { apiKey:'AIzaSyAGgWCP-bwO45c9pLpsFdH_42NeVgGSMrM', projectId:'edulab-6-social-rank' };
+const LB_SHOW = 10;
+const BOARDS = [
+  { id:'score', name:'單次最高分', icon:'⭐', fmt:v => `${v} 分` },
+  { id:'total', name:'累積答題數', icon:'📚', fmt:v => `${v} 題` },
+  { id:'time',  name:'全對最快',   icon:'⏱️', fmt:v => `${Number(v).toFixed(1)} 秒`, lower:true }
+];
+const lbReady = () => /^AIza/.test(FB.apiKey) && FB.projectId && !FB.projectId.startsWith('__');
+const myId = () => S.uid || S.pid || '';
+const FS = () => `https://firestore.googleapis.com/v1/projects/${FB.projectId}/databases/(default)/documents`;
+// 匿名登入：第一次註冊一個匿名帳號，之後用 refresh token 換新的 id token（一小時有效）
+let FB_TOKEN = null;
+async function fbToken(){
+  if (FB_TOKEN && FB_TOKEN.exp > Date.now() + 60000) return FB_TOKEN.id;
+  let r, d;
+  if (S.fbRefresh){
+    r = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FB.apiKey}`, { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body:`grant_type=refresh_token&refresh_token=${encodeURIComponent(S.fbRefresh)}` });
+    if (r.ok){ d = await r.json(); FB_TOKEN = { id:d.id_token, exp:Date.now() + d.expires_in * 1000 }; S.uid = d.user_id; S.fbRefresh = d.refresh_token; save(); return FB_TOKEN.id; }
+  }
+  r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FB.apiKey}`, { method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ returnSecureToken:true }) });
+  if (!r.ok) throw new Error('auth');
+  d = await r.json();
+  FB_TOKEN = { id:d.idToken, exp:Date.now() + d.expiresIn * 1000 }; S.uid = d.localId; S.fbRefresh = d.refreshToken; save();
+  return FB_TOKEN.id;
+}
+const fsVal = v => v.integerValue != null ? Number(v.integerValue) : v.doubleValue != null ? Number(v.doubleValue) : v.stringValue != null ? v.stringValue : null;
+// 讀一種排行的前 20 名
+async function fbTop(b){
+  const r = await fetch(`${FS()}:runQuery`, { method:'POST', headers:{ 'Content-Type':'application/json' },
+    body:JSON.stringify({ structuredQuery:{ from:[{ collectionId:'lb_' + b.id }], orderBy:[{ field:{ fieldPath:'value' }, direction:b.lower ? 'ASCENDING' : 'DESCENDING' }], limit:20 } }) });
+  if (!r.ok) throw new Error('http');
+  return (await r.json()).filter(x => x.document).map(x => { const f = x.document.fields; return { pid:x.document.name.split('/').pop(), name:fsVal(f.name), pet:fsVal(f.pet), value:fsVal(f.value) }; });
+}
+// 讀到的排行榜存在這台裝置，打開時先顯示上次的，背景再更新；同一時間只送一個請求；每一輪開始就先讀
+const LB_CACHE = 'g6-lb-cache-fb';
+let LBC = null, LB_INFLIGHT = null;
+try { LBC = JSON.parse(localStorage.getItem(LB_CACHE) || 'null'); } catch (e){}
+const lbRemember = data => { LBC = { at:Date.now(), data }; try { localStorage.setItem(LB_CACHE, JSON.stringify(LBC)); } catch (e){} return data; };
+function lbFetch(){
+  if (!lbReady()) return Promise.reject(new Error('nourl'));
+  if (!LB_INFLIGHT){
+    LB_INFLIGHT = Promise.all(BOARDS.map(fbTop))
+      .then(ls => lbRemember(Object.fromEntries(BOARDS.map((b, i) => [b.id, ls[i]]))))
+      .finally(() => { LB_INFLIGHT = null; });
+  }
+  return LB_INFLIGHT;
+}
+// 上傳成績：每種排行只在比自己舊紀錄好的時候更新分數；名字和小夥伴每次都更新
+async function lbPost(entries, name){
+  const tok = await fbToken(), uid = S.uid;
+  await Promise.all(entries.map(async en => {
+    const b = BOARDS.find(x => x.id === en.board), url = `${FS()}/lb_${b.id}/${uid}`;
+    const old = await fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+    const oldV = old && old.fields ? fsVal(old.fields.value) : null;
+    const isBetter = oldV == null || lbBetter(b, en.value, oldV);
+    const fields = { name:{ stringValue:name }, pet:{ stringValue:S.pet } };
+    if (isBetter) fields.value = b.lower ? { doubleValue:Number(en.value) } : { integerValue:String(Math.round(en.value)) };
+    const mask = Object.keys(fields).map(k => `updateMask.fieldPaths=${k}`).join('&');
+    const r = await fetch(`${url}?${mask}`, { method:'PATCH', headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${tok}` }, body:JSON.stringify({ fields }) });
+    if (!r.ok) throw new Error('write ' + r.status);
+  }));
+  return lbFetch();
+}
+const lbBetter = (b, x, y) => b.lower ? x < y : x > y;
+// 這個成績在排行榜上會是第幾名（進不了前 LB_SHOW 名、或沒有比自己的舊紀錄好，就回傳 null）
+function lbRankOf(b, list, value){
+  list = list || [];
+  const own = list.find(e => e.pid === myId());
+  if (own && !lbBetter(b, value, Number(own.value))) return null;
+  const rank = list.filter(e => e.pid !== myId() && !lbBetter(b, value, Number(e.value))).length + 1;
+  return rank <= LB_SHOW ? rank : null;
+}
+// 一輪結束後：看看能不能上排行榜，可以的話灑花、請他輸入名字
+async function lbCheck(cands, since = 0){
+  if (!lbReady()) return;
+  // 這一輪開始時已經先讀過了就直接用，不用再等
+  let data = LBC && LBC.at >= since ? LBC.data : null;
+  if (!data){ try { data = await lbFetch(); } catch (e){ data = LBC && LBC.data; } }
+  if (!data) return;
+  const wins = BOARDS.filter(b => cands[b.id] != null).map(b => ({ b, value:cands[b.id], rank:lbRankOf(b, data[b.id], cands[b.id]) })).filter(w => w.rank);
+  if (!wins.length) return;
+  confetti(); SFX.win();
+  $('modal').innerHTML = `<div class="lbwin" role="dialog" aria-label="登上排行榜">
+    <div class="head">🏆 恭喜！你可以登上排行榜！</div>
+    <ul>${wins.map(w => `<li>${w.b.icon} ${w.b.name}：<b>${w.b.fmt(w.value)}</b><span class="rk">第 ${w.rank} 名</span></li>`).join('')}</ul>
+    <label class="nm">輸入你的名字<input id="lbName" maxlength="12" autocomplete="nickname" placeholder="最多 12 個字" value="${esc(S.name || '')}"></label>
+    <div class="me2"><canvas data-ic="${S.pet}" width="20" height="20"></canvas><span>會和你的小夥伴一起顯示在排行榜上</span></div>
+    <p class="err" id="lbErr" hidden></p>
+    <div class="row"><button class="btn" id="lbGo">🏆 登上排行榜</button><button class="btn alt" id="lbNo">先不要</button></div>
+  </div>`;
+  $('modal').hidden = false;
+  $('modal').querySelectorAll('[data-ic]').forEach(c => c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0));
+  setTimeout(() => $('lbName').focus(), 50);
+  $('lbNo').onclick = closeModal;
+  const go = async () => {
+    const name = $('lbName').value.replace(/[<>]/g, '').trim().slice(0, 12);
+    if (!name){ $('lbErr').hidden = false; $('lbErr').textContent = '請先輸入名字喔！'; return; }
+    S.name = name; save();
+    $('lbGo').disabled = true; $('lbGo').textContent = '上傳中…';
+    try {
+      const entries = BOARDS.filter(b => cands[b.id] != null).map(b => ({ board:b.id, value:cands[b.id] }));
+      const res = await lbPost(entries, name);
+      showBoard(wins[0].b.id, res);
+    } catch (e){ $('lbErr').hidden = false; $('lbErr').textContent = '連不上排行榜，請稍後再試一次。'; $('lbGo').disabled = false; $('lbGo').textContent = '🏆 再試一次'; }
+  };
+  $('lbGo').onclick = go;
+  $('lbName').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+}
+// 排行榜視窗（三個分頁）
+async function showBoard(tab = 'score', data = null){
+  SFX.page();
+  let updating = false;
+  const paint = (msg) => {
+    const b = BOARDS.find(x => x.id === tab), list = data ? (data[tab] || []).slice(0, LB_SHOW) : [];
+    $('modal').innerHTML = `<div class="lbbox" role="dialog" aria-label="排行榜">
+      <div class="head">🏆 排行榜<button class="x" data-close aria-label="關閉">✕</button></div>
+      <div class="tabs">${BOARDS.map(x => `<button class="tab ${x.id === tab ? 'on' : ''}" data-tab="${x.id}">${x.icon} ${x.name}</button>`).join('')}</div>
+      <div class="lbnote">${tab === 'time' ? '一輪 20 題全部答對，從開始到答完所花的時間' : tab === 'total' ? '這台裝置累積答過的題數' : '一輪 20 題拿到的最高分數（含 COMBO 獎勵）'}</div>
+      ${updating && !msg ? '<div class="lbupd">🔄 更新中…（先顯示上次讀到的排行）</div>' : ''}
+      ${msg ? `<p class="lbmsg">${msg}</p>` : list.length ? `<ol class="lblist">${list.map((e, i) => `<li class="${e.pid === myId() ? 'me' : ''}"><span class="no">${['🥇', '🥈', '🥉'][i] || i + 1}</span><canvas data-ic="${esc(e.pet || '🐕')}" width="20" height="20"></canvas><span class="nm">${esc(e.name)}${e.pid === myId() ? '（你）' : ''}</span><span class="v">${b.fmt(e.value)}</span></li>`).join('')}</ol>` : '<p class="lbmsg">還沒有人上榜，快去挑戰吧！</p>'}
+    </div>`;
+    $('modal').hidden = false;
+    $('modal').querySelectorAll('[data-ic]').forEach(c => { try { c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0); } catch (e){} });
+    $('modal').querySelectorAll('[data-tab]').forEach(t => t.onclick = () => { tab = t.dataset.tab; SFX.blip(); paint(); });
+    $('modal').querySelector('[data-close]').onclick = closeModal;
+  };
+  if (!lbReady()){ paint('排行榜還沒有設定好（需要先設定 Firebase）。'); return; }
+  if (data){ paint(); return; }
+  const still = () => !$('modal').hidden && $('modal').querySelector('.lbbox');
+  if (LBC){ data = LBC.data; updating = true; paint(); } else paint('讀取中…（第一次可能要等一下）');
+  try { data = await lbFetch(); updating = false; if (still()) paint(); }
+  catch (e){ updating = false; if (still()) paint(LBC ? '' : '連不上排行榜，請檢查網路後再試一次。'); }
+}
+// 灑花
+function confetti(){
+  const cv = document.createElement('canvas'); cv.className = 'confetti'; cv.width = innerWidth; cv.height = innerHeight;
+  document.body.appendChild(cv);
+  const g = cv.getContext('2d'), cols = ['#ffcf3f', '#ff5fa2', '#3ce0ff', '#3ccf6e', '#c48bff', '#ff6b6b'];
+  const ps = Array.from({ length:160 }, () => ({ x:Math.random() * cv.width, y:-Math.random() * cv.height * .5, vx:(Math.random() - .5) * 2, vy:2 + Math.random() * 3, s:4 + Math.random() * 6, c:cols[Math.floor(Math.random() * cols.length)], r:Math.random() * 6, vr:(Math.random() - .5) * .3 }));
+  let t = 0;
+  (function step(){
+    t++; g.clearRect(0, 0, cv.width, cv.height);
+    ps.forEach(p => { p.x += p.vx + Math.sin((t + p.r * 20) / 20); p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); });
+    if (t < 220) requestAnimationFrame(step); else cv.remove();
+  })();
+}
+
+// ---------- 事件 ----------
+$('view').addEventListener('click', e => {
+  audio();
+  const pt = e.target.closest('[data-pet]');
+  if (pt){ S.pet = pt.dataset.pet; save(); SFX.blip(); $('view').querySelectorAll('[data-pet]').forEach(b => { const on = b === pt; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); }); if (SCENE) SCENE.happy(); return; }
+  if (e.target.closest('[data-mix]')){ startMission('mix'); return; }
+  const un = e.target.closest('[data-unit]'); if (un){ startMission(+un.dataset.unit); return; }
+  if (!Q || Q.done) return;
+  const q = Q.list[Q.i];
+  const op = e.target.closest('[data-a]');
+  if (op){
+    const a = +op.dataset.a, isRight = v => q.type === 'tf' ? (v === 1) === q.a : v === 0, ok = isRight(a);
+    $('qbox').querySelectorAll('[data-a]').forEach(b => { b.disabled = true; const v = +b.dataset.a; if (isRight(v)) b.classList.add('ok'); else if (b === op) b.classList.add('no'); else b.classList.add('dim'); });
+    answer(ok); return;
+  }
+  const oc = e.target.closest('[data-o]');
+  if (oc){
+    Q.picked.push(+oc.dataset.o); SFX.blip(); drawOrder();
+    if (Q.picked.length === q.items.length){
+      const ok = Q.picked.every((k, n) => k === n);
+      $('line').querySelectorAll('.chipq').forEach((c, n) => c.classList.add(Q.picked[n] === n ? 'ok' : 'no'));
+      answer(ok);
+    }
+    return;
+  }
+  if (e.target.closest('#undo')){ Q.picked.pop(); SFX.blip(); drawOrder(); }
+});
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+addEventListener('keydown', e => {
+  if (!$('modal').hidden){ if (e.key === 'Escape') closeModal(); if (HINT && HINT.alive && e.key === 'ArrowRight') $('hnext').click(); if (HINT && HINT.alive && e.key === 'ArrowLeft') $('hprev').click(); return; }
+  if (Q && !Q.done && /^[1-4]$/.test(e.key)){ const b = $('qbox').querySelectorAll('[data-a]')[+e.key - 1]; if (b) b.click(); }
+  if (Q && Q.done && e.key === 'Enter' && $('next')){ e.preventDefault(); $('next').click(); }
+});
+$('btnHome').onclick = () => { audio(); closeModal(); home(); };
+$('btnDex').onclick = () => { audio(); closeModal(); dex(); };
+$('btnHelp').onclick = () => { audio(); help(); };
+$('btnRank').onclick = () => { audio(); showBoard(); };
+$('btnSnd').onclick = () => { muted = !muted; $('btnSnd').setAttribute('aria-pressed', String(!muted)); if (!muted) SFX.blip(); };
+home();
+</script>
+</body>
+</html>

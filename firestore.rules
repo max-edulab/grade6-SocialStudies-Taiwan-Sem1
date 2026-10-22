@@ -1,0 +1,27 @@
+rules_version = '2';
+// 社會任務排行榜：每種排行一個集合（lb_score、lb_total、lb_time），文件 ID 就是玩家的匿名帳號 ID
+// 大家都能讀；只能寫自己的那一筆，而且欄位和數字要合理，分數只能越寫越好
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{board}/{uid} {
+      allow read: if board in ['lb_score', 'lb_total', 'lb_time'];
+      allow write: if board in ['lb_score', 'lb_total', 'lb_time']
+        && request.auth != null && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['name', 'pet', 'value'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0 && request.resource.data.name.size() <= 12
+        && request.resource.data.pet is string && request.resource.data.pet.size() <= 8
+        && request.resource.data.value is number
+        && okValue(board, request.resource.data.value)
+        && (resource == null || notWorse(board, request.resource.data.value, resource.data.value));
+    }
+    function okValue(board, v) {
+      return (board == 'lb_score' && v >= 0 && v <= 10000)
+          || (board == 'lb_total' && v >= 0 && v <= 1000000)
+          || (board == 'lb_time' && v >= 20 && v <= 36000);
+    }
+    function notWorse(board, v, old) {
+      return board == 'lb_time' ? v <= old : v >= old;
+    }
+  }
+}
