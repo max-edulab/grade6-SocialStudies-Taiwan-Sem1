@@ -164,7 +164,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .lbwin .err{margin:0 18px;color:var(--red);font-weight:700}
 .lbwin .row,.lbbox .row{padding:0 14px}
 .lbbox .x{background:none;border:0;font-size:18px;font-weight:900;color:var(--line)}
-.lbbox .tabs{display:flex;gap:6px;padding:0 12px;flex-wrap:wrap}
+.lbbox .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 12px}
+@media (max-width:520px){.lbbox .tabs{grid-template-columns:repeat(2,1fr)}}
 .lbbox .tab{flex:1;min-width:0;font-weight:900;font-size:14px;background:var(--bg2);border:3px solid var(--line);padding:6px 4px;color:var(--dim)}
 .lbbox .tab.on{background:var(--cyan);color:var(--line)}
 .lbnote{padding:0 14px;color:var(--dim);font-size:13px}
@@ -174,7 +175,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .lblist li.me{background:#3a3170;border-color:var(--gold)}
 .lblist .no{width:28px;text-align:center;font-family:var(--px);font-size:11px;color:var(--gold)}
 .lblist .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lblist .v{font-family:var(--px);font-size:11px;color:var(--cyan)}
+.lblist .v{font-family:var(--px);font-size:11px;color:var(--cyan);text-align:right;flex:none}
+.lblist .v small{display:block;font-size:9px;color:var(--dim);margin-top:2px}
 .lbupd{padding:0 14px;color:var(--cyan);font-size:13px;font-weight:700}
 /* ---------- 知識卡圖鑑 ---------- */
 .dex h3{margin:6px 0;font-size:17px;color:var(--c)}
@@ -863,6 +865,8 @@ try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } cat
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e){} };
 if (!PET_IDS.includes(S.pet)){ S.pet = { '🐕':'dog', '🐈':'cat', '🐇':'rabbit', '🦆':'duck', '🐿️':'guinea', '🦔':'guinea', '🐧':'penguin' }[S.pet] || 'dog'; save(); }
 const cardGot = sec => (S.secOk[sec.id] || 0) >= CARD_NEED;
+// 累積答對題數（舊存檔沒有這個欄位，就用每個觀念答對的次數加起來）
+if (S.correct == null){ S.correct = Object.values(S.secOk || {}).reduce((a, b) => a + b, 0); save(); }
 const cardCount = tp => tp.secs.filter(cardGot).length;
 
 function renderMe(){
@@ -1157,7 +1161,7 @@ function answer(ok){
     Q.combo++; Q.maxCombo = Math.max(Q.maxCombo, Q.combo);
     const gain = (Q.hinted ? 60 : 100) + Math.min(5, Q.combo - 1) * 20;
     Q.score += gain; Q.xp += gain;
-    const had = cardGot(q.sec); S.secOk[q.s] = (S.secOk[q.s] || 0) + 1;
+    const had = cardGot(q.sec); S.secOk[q.s] = (S.secOk[q.s] || 0) + 1; S.correct = (S.correct || 0) + 1;
     if (!had && cardGot(q.sec)){ newCard = true; Q.newCards.push(q.sec); }
     Q.combo >= 3 ? SFX.combo() : SFX.ok();
     if (SCENE) SCENE.happy();
@@ -1209,7 +1213,7 @@ function result(){
   $('toHome').onclick = home;
   renderMe();
   // 看看能不能上排行榜
-  const cands = { score:Q.score + bonus, total:S.answered || 0, time:ok === n && n === MISSION_LEN ? secs : null };
+  const cands = { score:Q.score + bonus, correct:S.correct || 0, lv:S.xp || 0, time:ok === n && n === MISSION_LEN ? secs : null };
   const since = Q.t0;
   setTimeout(() => lbCheck(cands, since), 1200);
 }
@@ -1289,7 +1293,7 @@ function help(){
     <li>答錯時會附上詳解和相關觀念的重點。</li>
     <li>不會的時候按「💡 看提示動畫」，用小動畫說明這個觀念（XP 會少一點，但一樣能拿）。</li>
     <li>同一個觀念答對 ${CARD_NEED} 題，就收集到那張知識卡，到「📚 知識卡」可以複習。</li>
-    <li>🏆 排行榜有三種：單次最高分、累積答題數、20 題全對最快。一輪結束後如果擠進前 ${LB_SHOW} 名，就能輸入名字登上排行榜，和朋友比賽！</li></ul>
+    <li>🏆 排行榜有三種：單次最高分、累積答對題數、20 題全對最快、等級（Lv）。一輪結束後如果擠進前 ${LB_SHOW} 名，就能輸入名字登上排行榜，和朋友比賽！</li></ul>
     <h3>給家長和老師</h3><p style="margin:0 0 10px">題庫共 ${BANK.length} 題，依臺灣史實與公民常識自行撰寫，程度約為國中，涵蓋民主發展、憲法與權利義務、政府運作、社會變遷、性別平等、宗教與多元族群六大主題，每題都附詳解。紀錄只存在這台裝置的瀏覽器裡。</p>
     <div class="row"><button class="btn" id="hclose">我知道了</button><button class="btn alt" id="reset">清除紀錄</button></div></div>`;
   $('modal').hidden = false;
@@ -1298,14 +1302,15 @@ function help(){
 }
 
 // ---------- 排行榜：存在 Firebase（Firestore），朋友之間一起比 ----------
-// 三種排行：單次最高分、累積答題數、20 題全對的最快時間；每個人在每種排行只留最好的一筆
+// 四種排行：單次最高分、累積答對題數、20 題全對的最快時間、等級（用 XP 排，XP 越多等級越高）；每個人在每種排行只留最好的一筆
 // Firebase 設定（Firestore 存排行、匿名登入讓每台裝置有自己的身分，只能改自己的成績）
 const FB = { apiKey:'AIzaSyAGgWCP-bwO45c9pLpsFdH_42NeVgGSMrM', projectId:'edulab-6-social-rank' };
 const LB_SHOW = 10;
 const BOARDS = [
   { id:'score', name:'單次最高分', icon:'⭐', fmt:v => `${v} 分` },
-  { id:'total', name:'累積答題數', icon:'📚', fmt:v => `${v} 題` },
-  { id:'time',  name:'全對最快',   icon:'⏱️', fmt:v => `${Number(v).toFixed(1)} 秒`, lower:true }
+  { id:'correct', name:'累積答對題數', icon:'✅', fmt:v => `${v} 題`, acc:true },
+  { id:'time',  name:'全對最快',   icon:'⏱️', fmt:v => `${Number(v).toFixed(1)} 秒`, lower:true },
+  { id:'lv',    name:'等級',       icon:'🎖️', fmt:v => `Lv.${lvOf(v)} ${titleOf(lvOf(v))}`, sub:v => `${v} XP`, acc:true }
 ];
 const lbReady = () => /^AIza/.test(FB.apiKey) && FB.projectId && !FB.projectId.startsWith('__');
 const myId = () => S.uid || S.pid || '';
@@ -1364,6 +1369,7 @@ async function lbPost(entries, name){
   return lbFetch();
 }
 const lbBetter = (b, x, y) => b.lower ? x < y : x > y;
+const lbOwnRank = list => { const i = (list || []).slice(0, LB_SHOW).findIndex(e => e.pid === myId()); return i < 0 ? null : i + 1; };
 // 這個成績在排行榜上會是第幾名（進不了前 LB_SHOW 名、或沒有比自己的舊紀錄好，就回傳 null）
 function lbRankOf(b, list, value){
   list = list || [];
@@ -1379,8 +1385,13 @@ async function lbCheck(cands, since = 0){
   let data = LBC && LBC.at >= since ? LBC.data : null;
   if (!data){ try { data = await lbFetch(); } catch (e){ data = LBC && LBC.data; } }
   if (!data) return;
-  const wins = BOARDS.filter(b => cands[b.id] != null).map(b => ({ b, value:cands[b.id], rank:lbRankOf(b, data[b.id], cands[b.id]) })).filter(w => w.rank);
-  if (!wins.length) return;
+  const all = BOARDS.filter(b => cands[b.id] != null).map(b => ({ b, value:cands[b.id], rank:lbRankOf(b, data[b.id], cands[b.id]), was:lbOwnRank(data[b.id]) })).filter(w => w.rank);
+  // 累積型的排行（答對題數、等級）每輪都會變多：已經在榜上、名次也沒往前的，就安靜地更新數字，不跳視窗
+  const wins = all.filter(w => !w.b.acc || !w.was || w.rank < w.was);
+  if (!wins.length){
+    if (all.length && S.name) lbPost(all.map(w => ({ board:w.b.id, value:w.value })), S.name).catch(() => {});
+    return;
+  }
   confetti(); SFX.win();
   $('modal').innerHTML = `<div class="lbwin" role="dialog" aria-label="登上排行榜">
     <div class="head">🏆 恭喜！你可以登上排行榜！</div>
@@ -1400,7 +1411,7 @@ async function lbCheck(cands, since = 0){
     S.name = name; save();
     $('lbGo').disabled = true; $('lbGo').textContent = '上傳中…';
     try {
-      const entries = BOARDS.filter(b => cands[b.id] != null).map(b => ({ board:b.id, value:cands[b.id] }));
+      const entries = all.map(w => ({ board:w.b.id, value:w.value }));
       const res = await lbPost(entries, name);
       showBoard(wins[0].b.id, res);
     } catch (e){ $('lbErr').hidden = false; $('lbErr').textContent = '連不上排行榜，請稍後再試一次。'; $('lbGo').disabled = false; $('lbGo').textContent = '🏆 再試一次'; }
@@ -1408,7 +1419,7 @@ async function lbCheck(cands, since = 0){
   $('lbGo').onclick = go;
   $('lbName').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
 }
-// 排行榜視窗（三個分頁）
+// 排行榜視窗（四個分頁）
 async function showBoard(tab = 'score', data = null){
   SFX.page();
   let updating = false;
@@ -1417,9 +1428,9 @@ async function showBoard(tab = 'score', data = null){
     $('modal').innerHTML = `<div class="lbbox" role="dialog" aria-label="排行榜">
       <div class="head">🏆 排行榜<button class="x" data-close aria-label="關閉">✕</button></div>
       <div class="tabs">${BOARDS.map(x => `<button class="tab ${x.id === tab ? 'on' : ''}" data-tab="${x.id}">${x.icon} ${x.name}</button>`).join('')}</div>
-      <div class="lbnote">${tab === 'time' ? '一輪 20 題全部答對，從開始到答完所花的時間' : tab === 'total' ? '這台裝置累積答過的題數' : '一輪 20 題拿到的最高分數（含 COMBO 獎勵）'}</div>
+      <div class="lbnote">${tab === 'time' ? '一輪 20 題全部答對，從開始到答完所花的時間' : tab === 'correct' ? '這台裝置累積答對的題數' : tab === 'lv' ? '這台裝置的等級，同一級的比 XP（經驗值）' : '一輪 20 題拿到的最高分數（含 COMBO 獎勵）'}</div>
       ${updating && !msg ? '<div class="lbupd">🔄 更新中…（先顯示上次讀到的排行）</div>' : ''}
-      ${msg ? `<p class="lbmsg">${msg}</p>` : list.length ? `<ol class="lblist">${list.map((e, i) => `<li class="${e.pid === myId() ? 'me' : ''}"><span class="no">${['🥇', '🥈', '🥉'][i] || i + 1}</span><canvas data-pc="${esc(e.pet || 'dog')}"></canvas><span class="nm">${esc(e.name)}${e.pid === myId() ? '（你）' : ''}</span><span class="v">${b.fmt(e.value)}</span></li>`).join('')}</ol>` : '<p class="lbmsg">還沒有人上榜，快去挑戰吧！</p>'}
+      ${msg ? `<p class="lbmsg">${msg}</p>` : list.length ? `<ol class="lblist">${list.map((e, i) => `<li class="${e.pid === myId() ? 'me' : ''}"><span class="no">${['🥇', '🥈', '🥉'][i] || i + 1}</span><canvas data-pc="${esc(e.pet || 'dog')}"></canvas><span class="nm">${esc(e.name)}${e.pid === myId() ? '（你）' : ''}</span><span class="v">${b.fmt(e.value)}${b.sub ? `<small>${b.sub(e.value)}</small>` : ''}</span></li>`).join('')}</ol>` : '<p class="lbmsg">還沒有人上榜，快去挑戰吧！</p>'}
     </div>`;
     $('modal').hidden = false;
     paintPets($('modal'));
