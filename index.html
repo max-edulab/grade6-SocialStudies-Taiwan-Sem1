@@ -138,7 +138,14 @@ button{font:inherit;color:inherit;cursor:pointer}
 .fb .x .lab{display:inline-block;font-size:12px;font-weight:900;background:var(--gold);color:var(--line);padding:0 6px;margin-right:6px}
 .review{background:var(--bg2);border:3px solid var(--line);padding:10px 14px;text-align:left;font-size:14px;line-height:1.8;width:100%;max-width:620px;color:var(--dim)}
 .review b{color:var(--gold)}
-.pets{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.pets{display:flex;align-items:center;gap:6px}
+.petrow{flex:1;min-width:0;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;padding:2px 0 5px}
+.petrow::-webkit-scrollbar{display:none}
+.petrow .pet{flex:none;scroll-snap-align:start}
+.parr{flex:none;width:30px;align-self:stretch;margin-bottom:3px;background:var(--panel);border:3px solid var(--line);box-shadow:0 3px 0 var(--line);color:var(--gold);font-size:13px;font-weight:900}
+.parr[hidden]{display:block!important;visibility:hidden}
+.parr:active{transform:translateY(3px);box-shadow:none}
+@media (max-width:520px){.pets{flex-wrap:wrap}.pets .lab{flex-basis:100%}}
 .pets .lab{font-weight:900;color:var(--gold);margin-right:4px}
 .pet{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--panel);border:3px solid var(--line);box-shadow:0 3px 0 var(--line);padding:4px 6px;font-size:12px;font-weight:700;min-width:52px}
 .pet canvas{width:36px;height:30px;image-rendering:pixelated}
@@ -1042,6 +1049,15 @@ function startScene(cv, color, logicalH = 36){
   return st;
 }
 
+// 小夥伴一排放不下時，用左右鍵捲動；只有還能往那邊捲時才顯示那邊的鍵（鍵的位置一直保留，畫面不會跳動）
+function petNav(){
+  const row = $('petRow'); if (!row) return;
+  const [L, Rb] = row.parentNode.querySelectorAll('[data-pscroll]');
+  const upd = () => { const max = row.scrollWidth - row.clientWidth; L.hidden = !(row.scrollLeft > 2); Rb.hidden = !(row.scrollLeft < max - 2); };
+  const on = row.querySelector('.on'); if (on) row.scrollLeft = on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
+  row.onscroll = upd; upd();
+  if (!petNav.bound){ petNav.bound = true; addEventListener('resize', () => { const r = $('petRow'); if (r) r.onscroll(); }); }
+}
 // ---------- 任務大廳 ----------
 function starsHtml(n){ return `<span class="stars">${[0, 1, 2].map(i => i < n ? '★' : '<span class="off">★</span>').join('')}</span>`; }
 function home(){
@@ -1049,7 +1065,7 @@ function home(){
   $('view').innerHTML = `<div class="wrap" style="gap:14px">
     <section class="hero"><canvas id="heroCv" width="480" height="64" aria-hidden="true"></canvas>
       <div class="txt"><h2>社會任務</h2><p>臺灣的民主、權利、政府、社會與文化｜題庫 ${BANK.length} 題</p></div></section>
-    <div class="pets" role="radiogroup" aria-label="選擇你的小夥伴"><span class="lab">我的小夥伴</span>${PETS.map(([e, n]) => `<button class="pet ${S.pet === e ? 'on' : ''}" data-pet="${e}" role="radio" aria-checked="${S.pet === e}" title="${n}"><canvas data-pc="${e}"></canvas><span>${n}</span></button>`).join('')}</div>
+    <div class="pets"><span class="lab">我的小夥伴</span><button class="parr" data-pscroll="-1" aria-label="往左看更多小夥伴" hidden>◀</button><div class="petrow" id="petRow" role="radiogroup" aria-label="選擇你的小夥伴">${PETS.map(([e, n]) => `<button class="pet ${S.pet === e ? 'on' : ''}" data-pet="${e}" role="radio" aria-checked="${S.pet === e}" title="${n}"><canvas data-pc="${e}"></canvas><span>${n}</span></button>`).join('')}</div><button class="parr" data-pscroll="1" aria-label="往右看更多小夥伴" hidden>▶</button></div>
     <button class="mixbtn" data-mix>🎲 綜合挑戰：六大主題平均出題，共 ${MISSION_LEN} 題</button>
     <div class="units">${TOPICS.map((tp, i) => { const st = S.topics[i] || {}; return `
       <button class="unit" data-unit="${i}" style="--c:${tp.c}">
@@ -1062,6 +1078,7 @@ function home(){
   </div>`;
   $('view').querySelectorAll('[data-ic]').forEach(c => c.getContext('2d').drawImage(sprite(c.dataset.ic, 20), 0, 0));
   paintPets($('view'));
+  petNav();
   SCENE = startScene($('heroCv'), '#3ce0ff', 40);
   renderMe();
 }
@@ -1433,6 +1450,8 @@ function confetti(){
 // ---------- 事件 ----------
 $('view').addEventListener('click', e => {
   audio();
+  const ps = e.target.closest('[data-pscroll]');
+  if (ps){ const row = $('petRow'); row.scrollBy({ left:+ps.dataset.pscroll * Math.max(80, row.clientWidth * .7), behavior:'smooth' }); SFX.blip(); return; }
   const pt = e.target.closest('[data-pet]');
   if (pt){ S.pet = pt.dataset.pet; save(); SFX.blip(); $('view').querySelectorAll('[data-pet]').forEach(b => { const on = b === pt; b.classList.toggle('on', on); b.setAttribute('aria-checked', String(on)); }); if (SCENE){ SCENE.alive = false; SCENE = startScene($('heroCv'), '#3ce0ff', 40); SCENE.happy(); } return; }
   if (e.target.closest('[data-mix]')){ startMission('mix'); return; }
