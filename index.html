@@ -1139,7 +1139,7 @@ const courseTopics = c => TOPICS.map((tp, i) => i).filter(i => (TOPICS[i].course
 const courseQs = c => courseTopics(c).reduce((n, i) => n + TOPICS[i].qs.length, 0);
 const MISSION_LEN = 20, CARD_NEED = 3;   // 每次 20 題；同一個觀念答對 3 題就收集到那張知識卡
 // 小夥伴：跟一年級數學「123冒險島」一樣的手繪像素小動物（18×15，臉朝左）
-const PETS = [['dog', '狗狗'], ['cat', '貓咪'], ['rabbit', '兔子'], ['pig', '小豬'], ['chick', '小雞'], ['duck', '鴨子'], ['guinea', '天竺鼠'], ['bear', '熊熊'], ['dino', '恐龍'], ['chamel', '變色龍'], ['gecko', '守宮'], ['lion', '獅子'], ['panda', '貓熊'], ['tiger', '老虎'], ['koala', '無尾熊'], ['penguin', '企鵝'], ['fox', '狐狸'], ['sloth', '樹懶']];
+const PETS = [['dog', '狗狗'], ['cat', '貓咪'], ['rabbit', '兔子'], ['pig', '小豬'], ['chick', '小雞'], ['duck', '鴨子'], ['guinea', '天竺鼠'], ['bear', '熊熊'], ['dino', '恐龍'], ['chamel', '變色龍'], ['gecko', '守宮'], ['lion', '獅子'], ['panda', '貓熊'], ['tiger', '老虎'], ['koala', '無尾熊'], ['penguin', '企鵝'], ['fox', '狐狸'], ['sloth', '樹懶'], ['kappa', '河童'], ['capy', '水豚']];
 const PET_IDS = PETS.map(p => p[0]);
 const ANIMAL_CACHE = {};
 function animalCanvas(id){
@@ -1262,6 +1262,17 @@ function animalCanvas(id){
     R(7, 5, 8, 5, s); R(8, 5, 6, 1, '#b89a78'); R(7, 9, 8, 1, sS);
     R(6, 9, 2, 3, s); R(5, 12, 3, 1, fc); R(13, 9, 2, 3, sS); R(13, 12, 3, 1, fc);
     R(15, 6, 1, 2, s); R(9, 4, 1, 1, s); R(12, 4, 1, 1, s);
+  } else if (id === 'kappa'){   // 河童：頭頂水盤、黃色嘴巴、背著殼，站著
+    const gr = '#5cc85c', gS = '#3a9a3a', sh = '#8a6a30', shL = '#b08a40';
+    R(2, 1, 7, 1, '#2a6a3a'); R(3, 0, 5, 2, '#d8f0ff'); R(4, 0, 2, 1, '#ffffff');
+    R(2, 2, 7, 5, gr); R(3, 4, 1, 1, ink); R(6, 4, 1, 1, ink); R(0, 5, 4, 2, '#ffcc30'); R(0, 6, 4, 1, '#e8a820');
+    R(3, 7, 6, 5, gr); R(4, 8, 3, 4, '#e8f0a0'); R(8, 6, 4, 6, sh); R(9, 7, 2, 4, shL);
+    R(2, 8, 1, 3, gS); R(3, 12, 2, 1, gS); R(7, 12, 2, 1, gS);
+  } else if (id === 'capy'){   // 水豚：方方的大頭、小耳朵，頭上頂著一顆橘子
+    const cb = '#b07a48', cS = '#8a5a30';
+    R(3, 1, 3, 2, '#ff9a20'); R(4, 0, 1, 1, '#3cc04c');
+    R(2, 3, 5, 1, cb); R(0, 4, 8, 4, cb); R(6, 2, 1, 1, cS); R(4, 4, 1, 1, ink); R(0, 5, 1, 1, '#3a2a1a'); R(1, 7, 2, 1, cS);
+    R(6, 4, 10, 6, cb); R(6, 9, 10, 1, cS); R(7, 10, 2, 2, cS); R(13, 10, 2, 2, cS);
   } else {   // 狗狗：紅項圈
     const tan = '#e0a050', tanS = '#b87a34', wht = '#fff4e0', dark = '#7a4a22';
     R(14, 4, 1, 3, tan); R(15, 3, 1, 2, tan);
@@ -1316,13 +1327,13 @@ let SCENE = null;
 const GAIT = {
   sloth:{ speed:.07 }, koala:{ speed:.2 }, chamel:{ speed:.18, crawl:true }, gecko:{ speed:.4, crawl:true },
   penguin:{ speed:.35, waddle:true }, duck:{ speed:.35, waddle:true }, rabbit:{ speed:.6, hop:true }, guinea:{ speed:.3 },
-  dino:{ speed:.4, stomp:true }, panda:{ speed:.25 }, bear:{ speed:.3 }
+  dino:{ speed:.4, stomp:true }, kappa:{ speed:.35, waddle:true }, capy:{ speed:.2 }, panda:{ speed:.25 }, bear:{ speed:.3 }
 };
 // 招牌動作的名字（給程式看的）和長度
 const MOVES = {
   dog:['撿骨頭', 150], cat:['撲撲撲', 140], rabbit:['超級跳', 140], pig:['滾泥巴', 140], chick:['拍翅膀', 120], duck:['玩水', 150],
   guinea:['爆米花跳', 130], bear:['吃蜂蜜', 150], dino:['恐龍大吼', 140], chamel:['變色舌頭', 160], gecko:['舔眼睛', 150], lion:['獅子吼', 140],
-  panda:['翻跟斗', 150], tiger:['猛虎衝刺', 130], koala:['抱樹', 170], penguin:['肚子滑冰', 140], fox:['狐狸鑽雪', 150], sloth:['慢～動～作', 180]
+  panda:['翻跟斗', 150], tiger:['猛虎衝刺', 130], koala:['抱樹', 170], penguin:['肚子滑冰', 140], fox:['狐狸鑽雪', 150], sloth:['慢～動～作', 180], kappa:['吃小黃瓜', 160], capy:['泡溫泉', 190]
 };
 const TINT = {};
 function tinted(img, col){   // 把動物染上一層顏色（變色龍用）
@@ -1349,7 +1360,8 @@ function startScene(cv, color, logicalH = 36){
     spark:['#ffb000', ['..X..', '..X..', 'XX.XX', '..X..', '..X..']],
     z:['#8a7ae0', ['XXXX', '..X.', '.X..', 'XXXX']],
     drop:['#3cb0ff', ['..X..', '.XXX.', 'XXXXX', 'XXXXX', '.XXX.']],
-    paw:['#c8763a', ['X.X.X', '.....', '.XXX.', 'XXXXX', '.XXX.']]
+    paw:['#c8763a', ['X.X.X', '.....', '.XXX.', 'XXXXX', '.XXX.']],
+    yuzu:['#ff9a20', ['.XXX.', 'XXXXX', 'XXXXX', 'XXXXX', '.XXX.']]
   };
   function glyph(k, x, y){ const [c, rows] = GLY[k]; rows.forEach((r, j) => { for (let i = 0; i < r.length; i++) if (r[i] === 'X') fP(g, x + i, y + j, c, 1, 1); }); return rows[0].length; }
   function say(syms, x, y){   // syms：用空白分開的符號名稱，例如 'note heart'
@@ -1459,6 +1471,25 @@ function startScene(cv, color, logicalH = 36){
         rot = Math.sin(f * Math.PI) * -.4 * front; h = -Math.sin(f * Math.PI) * 4; speed = .05;
         if (k % 40 === 0) pop(cx(), GY - PH - 2, '#a9a6d6', 1, 'z');
         fx = () => say(f < .5 ? 'heart' : 'heart z', cx(), GY - PH - 15 + h);
+      } else if (id === 'kappa'){   // 跑去撿小黃瓜，抱著喀滋喀滋吃，頭上的水盤濺出水花
+        if (k === 1){ M.cx = cx() + front * Math.min(50, front > 0 ? W - cx() - 14 : cx() - 14); M.got = false; }
+        if (!M.got){ speed = 2.2; rot = Math.sin(k / 3) * .15; if (Math.abs(cx() - M.cx) < 4) M.got = true; }
+        else { h = -Math.abs(Math.sin(k / 5)) * 2; if (k % 18 === 0) pop(cx(), GY - PH - 1, '#8cd0ff', 3, 'drop'); }
+        fx = () => {
+          const len = M.got ? Math.max(2, Math.round(10 * (1 - f))) : 10, X = M.got ? Math.round(cx() + front * (S2 / 2 - 4)) : Math.round(M.cx), Y = M.got ? Math.round(GY - PH * .45 + h) : GY - 3;
+          fP(g, X - len / 2, Y, '#3c9c28', len, 3); fP(g, X - len / 2, Y, '#7ad85a', len, 1);
+          if (M.got && k % 20 === 0) pop(X, Y, '#c8f0a0', 1, 'dot', 1);
+          if (M.got && f > .45) say('heart note', cx(), GY - PH - 15);
+        };
+      } else if (id === 'capy'){   // 冒出一池溫泉，慢慢泡進去，冒熱氣、享受地閉眼
+        const sink = f < .2 ? f / .2 : f > .88 ? (1 - f) / .12 : 1;
+        h = sink * 4; rot = Math.sin(k / 25) * .03;
+        if (sink === 1 && k % 14 === 0) pop(cx() + (Math.random() - .5) * S2, GY - 8, '#e8e8f8', 1, 'steam');
+        fx = () => {
+          fP(g, Math.round(st.x - 8), GY - 8, '#6a6a8a', S2 + 16, 2); fP(g, Math.round(st.x - 6), GY - 7, '#5cc0e8', S2 + 12, 10);
+          fP(g, Math.round(st.x - 4), GY - 7, '#a8e8ff', 6, 1); fP(g, Math.round(st.x + S2 - 4), GY - 6, '#a8e8ff', 4, 1);
+          if (sink === 1) say(f < .55 ? 'yuzu' : 'yuzu heart', cx(), GY - PH - 14 + h);
+        };
       } else {   // 其他：開心地跑來跑去
         speed = 2.4; h = -Math.abs(Math.sin(k / 3)) * 4;
       }
@@ -1486,10 +1517,11 @@ function startScene(cv, color, logicalH = 36){
     g.drawImage(img, -S2 / 2, -PH / 2, S2, PH); g.restore();
     if (fx) fx();
     st.parts = st.parts.filter(p => {
-      p.x += p.vx; p.y += p.vy; if (p.sh === 'dot') p.vy += .08; if (p.sh === 'z'){ p.vy = -.25; p.vx = .15; } p.t--;
+      p.x += p.vx; p.y += p.vy; if (p.sh === 'dot') p.vy += .08; if (p.sh === 'z'){ p.vy = -.25; p.vx = .15; } if (p.sh === 'steam'){ p.vy = -.3; p.vx = Math.sin(p.t / 5) * .3; } p.t--;
       if (p.sh === 'heart') heart(Math.round(p.x), Math.round(p.y), p.c);
       else if (p.sh === 'drop'){ fP(g, Math.round(p.x), Math.round(p.y), p.c, 2, 3); fP(g, Math.round(p.x), Math.round(p.y) - 1, p.c, 1, 1); }
       else if (p.sh === 'z') glyph('z', Math.round(p.x), Math.round(p.y));
+      else if (p.sh === 'steam') fP(g, Math.round(p.x), Math.round(p.y), `rgba(232,232,248,${Math.min(1, p.t / 30)})`, 1, 2);
       else fP(g, Math.round(p.x), Math.round(p.y), p.c, 2, 2);
       return p.t > 0;
     });
