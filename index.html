@@ -695,7 +695,7 @@ BANK.forEach((q, i) => { q.id = 'q' + i; q.sec = SEC[q.s]; q.ti = q.sec.t; q.top
 TOPICS.forEach((tp, i) => { tp.secs = SECS.filter(s => s.t === i); tp.qs = BANK.filter(q => q.ti === i); });
 const MISSION_LEN = 20, CARD_NEED = 3;   // 每次 20 題；同一個觀念答對 3 題就收集到那張知識卡
 // 小夥伴：跟一年級數學「123冒險島」一樣的手繪像素小動物（18×15，臉朝左）
-const PETS = [['dog', '狗狗'], ['cat', '貓咪'], ['rabbit', '兔子'], ['pig', '小豬'], ['chick', '小雞'], ['duck', '鴨子'], ['guinea', '天竺鼠'], ['bear', '熊熊'], ['dino', '恐龍']];
+const PETS = [['dog', '狗狗'], ['cat', '貓咪'], ['rabbit', '兔子'], ['pig', '小豬'], ['chick', '小雞'], ['duck', '鴨子'], ['guinea', '天竺鼠'], ['bear', '熊熊'], ['dino', '恐龍'], ['chamel', '變色龍'], ['gecko', '守宮'], ['lion', '獅子'], ['panda', '貓熊'], ['tiger', '老虎'], ['koala', '無尾熊'], ['penguin', '企鵝'], ['fox', '狐狸']];
 const PET_IDS = PETS.map(p => p[0]);
 const ANIMAL_CACHE = {};
 function animalCanvas(id){
@@ -757,6 +757,60 @@ function animalCanvas(id){
     R(1, 2, 8, 7, br); R(1, 5, 4, 3, mz); R(1, 5, 2, 1, ink); R(3, 4, 1, 1, ink); R(6, 4, 1, 1, ink);
     R(8, 5, 8, 6, br); R(8, 10, 8, 1, bS); R(10, 7, 4, 3, mz);
     R(8, 11, 3, 2, br); R(13, 11, 3, 2, bS);
+  } else if (id === 'chamel'){   // 變色龍：綠色、大眼睛、頭冠、捲尾巴
+    const gn = '#5cc85c', gS = '#3a9a3a', lt = '#b8f080';
+    R(2, 2, 2, 1, gS); R(1, 3, 3, 1, gn); R(0, 4, 5, 4, gn); R(0, 7, 3, 1, gS);
+    R(2, 4, 2, 2, '#ffffff'); R(2, 5, 1, 1, ink); R(2, 4, 2, 1, gS);
+    R(5, 4, 8, 1, gn); R(4, 5, 10, 4, gn); R(4, 8, 10, 1, gS); R(7, 5, 1, 3, lt); R(10, 5, 1, 3, lt);
+    R(5, 9, 1, 2, gS); R(5, 11, 2, 1, gS); R(11, 9, 1, 2, gS); R(11, 11, 2, 1, gS);
+    R(14, 6, 2, 1, gn); R(15, 7, 1, 3, gn); R(13, 9, 2, 1, gn); R(13, 8, 1, 1, gS);
+  } else if (id === 'gecko'){   // 守宮：黃色帶咖啡色斑點、圓圓的大眼睛、胖尾巴
+    const yl = '#f0c860', yS = '#c89a3a', sp = '#7a4a24';
+    R(1, 5, 3, 1, yl); R(0, 6, 5, 4, yl); R(1, 7, 2, 2, '#2a2a3a'); R(1, 7, 1, 1, '#ffffff'); R(0, 9, 3, 1, yS);
+    R(4, 6, 9, 4, yl); R(4, 9, 9, 1, yS);
+    R(13, 6, 3, 3, yl); R(15, 7, 2, 2, yS);
+    R(3, 6, 1, 1, sp); R(6, 7, 1, 1, sp); R(9, 8, 1, 1, sp); R(11, 7, 1, 1, sp); R(14, 7, 1, 1, sp);
+    R(5, 10, 2, 1, yS); R(4, 11, 2, 1, yS); R(11, 10, 2, 1, yS); R(12, 11, 2, 1, yS);
+  } else if (id === 'lion'){   // 獅子：大大的鬃毛
+    const tan = '#e8b050', tS = '#c08a38', mn = '#b8661e', mL = '#d88a30';
+    R(0, 0, 8, 9, mn); R(1, 1, 6, 7, mL); R(2, 2, 4, 5, '#f4c868');
+    R(2, 3, 1, 1, ink); R(5, 3, 1, 1, ink); R(3, 5, 2, 1, '#7a3a1a'); R(3, 6, 2, 1, '#fff4e0');
+    R(7, 5, 8, 5, tan); R(7, 9, 8, 1, tS);
+    R(7, 10, 2, 2, tan); R(13, 10, 2, 2, tS);
+    R(15, 4, 1, 4, tan); R(15, 2, 2, 2, mn);
+  } else if (id === 'panda'){   // 貓熊：黑眼圈、黑手黑腳
+    const wh = '#f4f4f8', bk = '#2a2a3a';
+    R(1, 0, 2, 2, bk); R(6, 0, 2, 2, bk);
+    R(1, 1, 7, 7, wh); R(2, 3, 2, 2, bk); R(5, 3, 2, 2, bk); R(3, 3, 1, 1, '#ffffff'); R(5, 3, 1, 1, '#ffffff'); R(4, 6, 1, 1, bk);
+    R(7, 5, 8, 5, wh); R(7, 5, 2, 5, bk); R(9, 9, 6, 1, '#c8c8d8');
+    R(7, 10, 2, 2, bk); R(13, 10, 2, 2, bk); R(15, 6, 1, 2, wh);
+  } else if (id === 'tiger'){   // 老虎：橘色加黑條紋
+    const or = '#f08a30', oS = '#c8661a', wh = '#fff4e0';
+    R(1, 0, 2, 2, or); R(6, 0, 2, 2, or);
+    R(1, 1, 7, 6, or); R(4, 1, 1, 2, ink); R(1, 3, 1, 1, ink); R(7, 3, 1, 1, ink);
+    R(2, 4, 4, 3, wh); R(2, 3, 1, 1, ink); R(5, 3, 1, 1, ink); R(3, 5, 2, 1, pink);
+    R(6, 5, 9, 5, or); R(8, 5, 1, 3, ink); R(11, 5, 1, 3, ink); R(14, 5, 1, 2, ink); R(7, 9, 7, 1, wh);
+    R(6, 10, 2, 2, or); R(12, 10, 2, 2, oS);
+    R(15, 3, 1, 4, or); R(15, 3, 1, 1, ink); R(16, 2, 1, 1, ink);
+  } else if (id === 'koala'){   // 無尾熊：灰色大耳朵、大黑鼻子，坐著
+    const gy = '#9a9ab0', gS = '#7a7a90', lt = '#e0e0ea';
+    R(0, 0, 3, 3, gy); R(1, 1, 1, 1, lt); R(6, 0, 3, 3, gy); R(7, 1, 1, 1, lt);
+    R(1, 1, 7, 7, gy); R(2, 4, 1, 1, ink); R(6, 4, 1, 1, ink); R(3, 4, 3, 3, '#3a3a4a'); R(3, 4, 1, 1, '#6a6a80');
+    R(6, 6, 7, 6, gy); R(7, 8, 4, 3, lt); R(11, 6, 2, 3, gS);
+    R(6, 11, 3, 1, gS); R(10, 11, 3, 1, gS);
+  } else if (id === 'penguin'){   // 企鵝：站著、白肚子、橘嘴巴
+    const bk = '#2a2a3a', wh = '#f4f4f8', bk2 = '#ff9a20';
+    R(3, 0, 6, 2, bk); R(2, 2, 8, 10, bk); R(4, 4, 5, 8, wh);
+    R(3, 2, 2, 1, wh); R(3, 2, 1, 1, ink); R(0, 3, 2, 1, bk2); R(4, 5, 1, 1, '#ffb0c0');
+    R(10, 5, 1, 4, bk); R(11, 7, 1, 2, bk);
+    R(3, 12, 3, 1, bk2); R(7, 12, 3, 1, bk2);
+  } else if (id === 'fox'){   // 狐狸：橘色、白嘴巴、大尾巴
+    const or = '#f07a30', oS = '#c85a1a', wh = '#fff4e0', dk = '#3a2a2a';
+    R(1, 0, 2, 1, dk); R(6, 0, 2, 1, dk); R(1, 1, 2, 1, or); R(6, 1, 2, 1, or);
+    R(1, 2, 7, 5, or); R(0, 5, 4, 2, wh); R(0, 5, 1, 1, ink); R(3, 3, 1, 1, ink); R(6, 3, 1, 1, ink);
+    R(6, 5, 8, 4, or); R(7, 8, 6, 1, wh);
+    R(6, 9, 2, 3, dk); R(12, 9, 2, 3, dk);
+    R(14, 3, 3, 5, or); R(14, 3, 1, 5, oS); R(15, 7, 2, 2, wh);
   } else {   // 狗狗：紅項圈
     const tan = '#e0a050', tanS = '#b87a34', wht = '#fff4e0', dark = '#7a4a22';
     R(14, 4, 1, 3, tan); R(15, 3, 1, 2, tan);
@@ -793,7 +847,7 @@ const KEY = 'g6-social-quest-v3';
 let S = { xp:0, topics:{}, secOk:{}, seen:{}, pet:'dog' };
 try { S = Object.assign(S, JSON.parse(localStorage.getItem(KEY) || '{}')); } catch (e){}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e){} };
-if (!PET_IDS.includes(S.pet)){ S.pet = { '🐕':'dog', '🐈':'cat', '🐇':'rabbit', '🦆':'duck', '🐿️':'guinea', '🦔':'guinea' }[S.pet] || 'dog'; save(); }
+if (!PET_IDS.includes(S.pet)){ S.pet = { '🐕':'dog', '🐈':'cat', '🐇':'rabbit', '🦆':'duck', '🐿️':'guinea', '🦔':'guinea', '🐧':'penguin' }[S.pet] || 'dog'; save(); }
 const cardGot = sec => (S.secOk[sec.id] || 0) >= CARD_NEED;
 const cardCount = tp => tp.secs.filter(cardGot).length;
 
