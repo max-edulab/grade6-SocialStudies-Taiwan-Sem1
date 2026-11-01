@@ -223,20 +223,69 @@ button{font:inherit;color:inherit;cursor:pointer}
   .rank{font-size:48px}
 }
 @media (prefers-reduced-motion:reduce){.float,.lvup,.scene.shake{animation:none}}
+/* ---------- 上方固定的兩個按鈕（每個遊戲都一樣）：⌂ 遊戲大廳＝回到所有遊戲的入口；圖示＋首頁＝回到這個遊戲的開頭 ---------- */
+.elnL{display:flex;align-items:center;gap:10px;flex-wrap:wrap;min-width:0}
+.eln{display:flex;gap:6px;flex:none;align-items:center}
+.eln a,.eln button{display:inline-flex;align-items:center;gap:5px;margin:0;font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;font-size:15px;font-weight:900;line-height:1.2;padding:5px 10px;border:3px solid #0b0e22;border-radius:0;box-shadow:0 3px 0 #0b0e22;cursor:pointer;text-decoration:none;white-space:nowrap;letter-spacing:0;text-shadow:none;text-transform:none}
+.eln .hall{background:#1b1b2f;color:#fff;outline:2px solid #fcbc3c;outline-offset:-6px}
+.eln .home{background:#fffbe8;color:#1b1b2f}
+.eln a:hover{background:#2c2c4a}
+.eln button:hover{background:#fff3b0}
+.eln a:active,.eln button:active{transform:translateY(3px);box-shadow:none}
+.eln a:focus-visible,.eln button:focus-visible{outline:3px solid #3ce0ff;outline-offset:2px}
+.eln-logo{cursor:pointer}
+@media (max-width:560px){.eln .long{display:none}.eln a,.eln button{font-size:14px;padding:4px 8px}}
+/* 正在玩的時候按到，先問一下 */
+.elnask{position:fixed;inset:0;z-index:9999;background:rgba(5,8,25,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.elnask .box{background:#fffbe8;color:#1b1b2f;border:4px solid #0b0e22;box-shadow:6px 6px 0 rgba(0,0,0,.4);padding:18px 20px;width:min(380px,100%);font-family:"Noto Sans TC","Microsoft JhengHei","PingFang TC",sans-serif;display:flex;flex-direction:column;gap:12px;align-items:center;text-align:center;font-size:18px;font-weight:700;line-height:1.6}
+.elnask .t{font-size:22px;font-weight:900}
+.elnask .row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.elnask button{font-family:inherit;font-weight:900;font-size:18px;padding:8px 18px;border:3px solid #0b0e22;border-radius:0;box-shadow:0 4px 0 #0b0e22;cursor:pointer;color:#1b1b2f}
+.elnask .stay{background:#fcbc3c}
+.elnask .go{background:#fff}
+.elnask button:active{transform:translateY(3px);box-shadow:none}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header class="bar">
-    <h1 class="logo"><span class="px">QUEST</span>社會任務</h1>
+    <div class="elnL"><nav class="eln" aria-label="回到哪裡"><a class="hall" id="elnHall" href="https://max-edulab.github.io/home/" title="回到所有遊戲的遊戲大廳">⌂ <span><span class="long">遊戲</span>大廳</span></a><button class="home" id="elnHome" type="button" title="回到這個遊戲的首頁">🚀 首頁</button></nav><h1 class="logo" data-eln-logo><span class="px">QUEST</span>社會任務</h1></div>
     <div class="me" id="me"></div>
     <div class="btns">
-      <button class="chip" id="btnHome">🏠 主畫面</button>
       <button class="chip" id="btnRank">🏆 排行榜</button><button class="chip" id="btnDex">📚 知識卡</button>
       <button class="chip" id="btnSnd" aria-pressed="true">🔊 音效</button>
       <button class="chip" id="btnHelp">❓ 說明</button>
     </div>
   </header>
+<script>
+// 上方兩個固定按鈕：⌂ 遊戲大廳、首頁（點遊戲名稱也會回首頁）
+// 遊戲裡要設定：EDULAB_NAV.home（回首頁要做的事）、busy（是不是正在玩一輪，正在玩就先問一下）、text（問的話，可以給有注音的版本）
+window.EDULAB_NAV = window.EDULAB_NAV || { home:null, busy:() => false, text:null };
+(() => {
+  const ask = go => {
+    let busy = false; try { busy = !!EDULAB_NAV.busy(); } catch (e) {}
+    if (!busy) return go();
+    let t = null; try { t = typeof EDULAB_NAV.text === 'function' ? EDULAB_NAV.text() : null; } catch (e) {}
+    t = t || { title:'這一輪還沒做完', sub:'確定要離開嗎？', stay:'繼續玩', go:'離開' };
+    const d = document.createElement('div'); d.className = 'elnask';
+    d.innerHTML = `<div class="box" role="dialog" aria-modal="true" aria-label="確定要離開嗎"><div class="t">${t.title}</div><div>${t.sub}</div><div class="row"><button class="stay" type="button">${t.stay}</button><button class="go" type="button">${t.go}</button></div></div>`;
+    document.body.appendChild(d);
+    const close = () => { d.remove(); removeEventListener('keydown', esc, true); };
+    const esc = e => { if (e.key === 'Escape'){ e.stopPropagation(); close(); } };
+    addEventListener('keydown', esc, true);
+    d.onclick = e => { if (e.target === d) close(); };
+    d.querySelector('.stay').onclick = close;
+    d.querySelector('.go').onclick = () => { close(); go(); };
+    d.querySelector('.stay').focus();
+  };
+  document.getElementById('elnHall').addEventListener('click', e => { e.preventDefault(); const u = e.currentTarget.href; ask(() => { location.href = u; }); });
+  const home = () => ask(() => { if (EDULAB_NAV.home) EDULAB_NAV.home(); });
+  document.getElementById('elnHome').addEventListener('click', home);
+  const logo = document.querySelector('[data-eln-logo]');
+  if (logo){ logo.classList.add('eln-logo'); logo.title = '回到這個遊戲的首頁'; logo.addEventListener('click', home); }
+})();
+</script>
+
   <main id="view"></main>
 </div>
 <div class="modal" id="modal" hidden></div>
@@ -1977,7 +2026,9 @@ addEventListener('keydown', e => {
   if (Q && !Q.done && /^[1-4]$/.test(e.key)){ const b = $('qbox').querySelectorAll('[data-a]')[+e.key - 1]; if (b) b.click(); }
   if (Q && Q.done && e.key === 'Enter' && $('next')){ e.preventDefault(); $('next').click(); }
 });
-$('btnHome').onclick = () => { audio(); closeModal(); home(); };
+// 上方「首頁」：回任務大廳；任務做到一半按「首頁」或「遊戲大廳」會先問一下
+EDULAB_NAV.home = () => { audio(); closeModal(); home(); };
+EDULAB_NAV.busy = () => !!(Q && Q.res.length < Q.list.length);
 $('btnDex').onclick = () => { audio(); closeModal(); dex(); };
 $('btnHelp').onclick = () => { audio(); help(); };
 $('btnRank').onclick = () => { audio(); showBoard(); };
